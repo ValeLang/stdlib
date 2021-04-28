@@ -1,0 +1,9 @@
+name = "stdlib"
+version = "0.1.0"
+vale_version = "0.1.1"
+author = "cardinal"
+
+[[imports]]
+command = "clang"
+args = ["-c", "native/file.c", "-o", "build/file.o"]
+link_paths = ["build/file.o"]
