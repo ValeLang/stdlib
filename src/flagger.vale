@@ -12,24 +12,24 @@
 // * type The type of the flag. I would say this is an enum, but
 //            those aren't in Vale yet... so here is the documentation
 //            for the different types:
-//            * NOTHING = 0 -> This means the flag is standalone and takes no value.
-//            * INT = 1 -> This means the flag takes an @int value.
-//            * STR = 2 -> This means the flag takes a @str value (parsed by the command line).
-//            * TOKN = 3 -> This means the flag takes a `token` value (@str). This is essentially the same
-//                          as the `STR` value, but is different in semantics alone.
-//            * BOOL = 4 -> This means the flag takes a @bool value (true/false).
-//            * LIST_INT = 4 -> This means the flag takes a @List<int>. The values are delineated
+//            * FLAG_NOTHING = 0 -> This means the flag is standalone and takes no value.
+//            * FLAG_INT = 1 -> This means the flag takes an @int value.
+//            * FLAG_STR = 2 -> This means the flag takes a @str value (parsed by the command line).
+//            * FLAG_TOKN = 3 -> This means the flag takes a `token` value (@str). This is essentially the same
+//                          as the `FLAG_STR` value, but is different in semantics alone.
+//            * FLAG_BOOL = 4 -> This means the flag takes a @bool value (true/false).
+//            * FLAG_LIST_INT = 4 -> This means the flag takes a @List<int>. The values are delineated
 //                              individually through whitespace (parsed by the command line).
-//            * LIST_STR -> This means the flag takes a @List<str>. Same structure as `LIST_INT`.
-//            * LIST_TOKN -> This means the flag takes a @List<str>. Same structure as `LIST_INT`.
-//            * LIST_BOOL -> This means the flag takes a @List<bool>. Same structure as `LIST_INT`.
-//            * LIST_ANY -> This means the flag takes a @List<FlagType>. Same structure as `LIST_INT`.
+//            * FLAG_LIST_STR -> This means the flag takes a @List<str>. Same structure as `FLAG_LIST_INT`.
+//            * FLAG_LIST_TOKN -> This means the flag takes a @List<str>. Same structure as `FLAG_LIST_INT`.
+//            * FLAG_LIST_BOOL -> This means the flag takes a @List<bool>. Same structure as `FLAG_LIST_INT`.
+//            * FLAG_LIST_ANY -> This means the flag takes a @List<FlagType>. Same structure as `FLAG_LIST_INT`.
 // * desc The long description of the flag. This will eventually be used in `[command] --help [flag]`.
 // * short_desc The short description of the flag. This will eventually be used in `[command] --help`.
 // * example An example of how to use the flag. This will eventually be used in `[command] --help [flag]`.
 struct Flag {
     name str;
-    type int; // INT, STR, TOKN, BOOL, or the LIST values.
+    type int; // FLAG_INT, FLAG_STR, FLAG_TOKN, FLAG_BOOL, or the FLAG_LIST values.
 
     desc str;
     short_desc str;
@@ -37,18 +37,18 @@ struct Flag {
     example str;
 }
 
-// const NOTHING = 0;
+fn FLAG_NOTHING() int { 0 }
 
-// const INT  = 1;
-// const STR  = 2;
-// const TOKN = 3;
-// const BOOL = 4;
+fn FLAG_INT () int { 1 }
+fn FLAG_STR () int { 2 }
+fn FLAG_TOKN() int { 3 }
+fn FLAG_BOOL() int { 4 }
 
-// const LIST_INT  = 5;
-// const LIST_STR  = 6;
-// const LIST_TOKN = 7;
-// const LIST_BOOL = 8;
-// const LIST_ANY  = 9;
+fn FLAG_LIST_INT () int { 5 }
+fn FLAG_LIST_STR () int { 6 }
+fn FLAG_LIST_TOKN() int { 7 }
+fn FLAG_LIST_BOOL() int { 8 }
+fn FLAG_LIST_ANY () int { 9 }
 
 // The result of a flag that has been parsed.
 // 
@@ -105,7 +105,7 @@ struct Command {
 // 4) @FlagBool
 // 5) @FlagAnyList
 // 
-// This will later have other `LIST` types.
+// This will later have other `FLAG_LIST` types.
 // 
 // All flag value types have only one field, `value`.
 interface FlagType { }
@@ -176,7 +176,7 @@ fn parse_all_flags<N>(flag_list [N * Flag], args Array<imm, str>) ParsedFlagList
         arg = args[i];
 
         valid!     = false;
-        flag_type! = 0; // TODO: NOTHING
+        flag_type! = FLAG_NOTHING();
 
         flag_list.each((flag){
             if (valid) {
@@ -187,11 +187,11 @@ fn parse_all_flags<N>(flag_list [N * Flag], args Array<imm, str>) ParsedFlagList
             mut valid = flag.name == arg;
         });
 
-        if (valid and flag_type != 0) { // TODO: NOTHING
+        if (valid and flag_type != FLAG_NOTHING()) {
             parsed_flag_list.parsed_flags.add(parse_flag(args, flag_type, &i));
         }
 
-        else if (flag_type == 0) {
+        else if (flag_type == FLAG_NOTHING()) {
             parsed_flag_list.parsed_flags.add(ParsedFlag(args[i], FlagString("")));
         }
 
@@ -220,13 +220,13 @@ fn parse_flag(args Array<imm, str>, flag_type int, i &int) ParsedFlag {
 
     // Curse Verdagon and his lack of matches! lol
 
-    if (flag_type == 0) { // NOTHING
+    if (flag_type == FLAG_NOTHING()) {
         vassert(false, "Invalid flag type was passed");
 
         = ParsedFlag(name, FlagString(""));
     }
 
-    else if (flag_type == 1) { // INT
+    else if (flag_type == FLAG_INT()) {
         mut i = i + 1;
         
         val = int(args[i].slice());
@@ -236,17 +236,17 @@ fn parse_flag(args Array<imm, str>, flag_type int, i &int) ParsedFlag {
         = ParsedFlag(name, FlagInt(val.get()));
     }
 
-    else if (flag_type == 2) { // STR
+    else if (flag_type == FLAG_STR()) {
         mut i = i + 1;
         = ParsedFlag(name, FlagString(args[i]));
     }
 
-    else if (flag_type == 3) { // TOKN
+    else if (flag_type == FLAG_TOKN()) {
         mut i = i + 1;
         = ParsedFlag(name, FlagToken(args[i]));
     }
 
-    else if (flag_type == 4) { // BOOL
+    else if (flag_type == FLAG_BOOL()) {
         mut i = i + 1;
 
         val = args[i] == "true";
