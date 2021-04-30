@@ -1,0 +1,10 @@
+//export List<str> as StrTest;
+export Array<mut, str> as StrChain;
+
+struct Command {
+    stdin int;
+    stdout int;
+    stderr int;
+}
+
+fn launch_command(args Array<mut,str>) Command extern;

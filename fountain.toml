@@ -5,5 +5,10 @@ author = "cardinal"
 
 [[imports]]
 command = "clang"
-args = ["-c", "native/file.c", "-o", "build/file.o"]
-link_paths = ["build/file.o"]
+args = ["-c", "native/file.c", "-o", "build/native.o"]
+link_paths = ["build/native.o"]
+
+[[imports]]
+command = "clang"
+args = ["-c", "native/subprocess.c", "-o", "build/subprocess.o"]
+link_paths = ["build/subprocess.o"]

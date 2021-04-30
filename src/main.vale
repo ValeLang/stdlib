@@ -1,1 +1,7 @@
+fn run() void {
+    println("hello from another thread");
+}
+
+fn func_test() { ret "rcho"; }
+
 fn main() export {}
