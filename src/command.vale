@@ -2,6 +2,7 @@
 export Array<imm, str> as StrChain;
 
 struct Command {
+    handle int;
     stdin int;
     stdout int;
     stderr int;
