@@ -2,6 +2,18 @@ fn run() void {
     println("hello from another thread");
 }
 
-fn func_test() { ret "rcho"; }
+fn func_test(empty int) { ret "rcho"; }
 
-fn main() export {}
+fn toArray<M, T>(source &Array<_, T>) Array<M, &T> {
+  Array<M, &T>(
+    source.len(),
+    &!IFunction1<mut, int, T>((i){ source[i] }))
+}
+
+fn main() export {
+    arr = MakeArray(2, (i){ "hello" });
+    mut arr[0] = "echo";
+    mut arr[1] = "'hello world'";
+    immarr = toArray<imm, str>(&arr);     
+    launch_command(immarr);
+}

@@ -1,5 +1,5 @@
 //export List<str> as StrTest;
-export Array<mut, str> as StrChain;
+export Array<imm, str> as StrChain;
 
 struct Command {
     stdin int;
@@ -7,4 +7,4 @@ struct Command {
     stderr int;
 }
 
-fn launch_command(args Array<mut,str>) Command extern;
+fn launch_command(args Array<imm,str>) Command extern;
