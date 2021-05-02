@@ -1,0 +1,3 @@
+fn is_dir(value str) int extern;
+fn is_file(value str) int extern;
+fn exists(path str) int extern;

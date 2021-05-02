@@ -11,9 +11,12 @@ fn toArray<M, T>(source &Array<_, T>) Array<M, &T> {
 }
 
 fn main() export {
-    arr = MakeArray(2, (i){ "hello" });
-    mut arr[0] = "echo";
-    mut arr[1] = "'hello world'";
-    immarr = toArray<imm, str>(&arr);     
-    launch_command(immarr);
+    //arr = MakeArray(2, (i){ "hello" });
+    //mut arr[0] = "echo";
+    //mut arr[1] = "'hello world'";
+    //immarr = toArray<imm, str>(&arr);     
+    //create_command(immarr);
+    //println("output: " + read_child_stdout(cmd, 12));
+    println("PATH is: " + get_env_var("PATH"));
+    list = List<str>();
 }

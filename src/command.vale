@@ -1,11 +1,11 @@
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
 
-struct Command {
+struct Command imm{
     handle int;
-    stdin int;
-    stdout int;
-    stderr int;
 }
 
+fn get_env_var(name str) str extern;
 fn launch_command(args Array<imm,str>) Command extern;
+fn read_child_stdout(cmd Command, len int) str extern;
+fn read_child_stderr(cmd Command, len int) str extern;

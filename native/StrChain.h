@@ -2,7 +2,7 @@
 #define STRCHAIN_HEADER_VALE
 
 typedef struct ValeStr {
-    unsigned long lrngth;
+    unsigned long length;
     char chars[0]; 
 } ValeStr;
 
