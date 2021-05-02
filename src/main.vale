@@ -19,7 +19,11 @@ fn main() export {
     //println("output: " + read_child_stdout(cmd, 12));
     println("PATH is: " + get_env_var("PATH"));
     parts = split(get_env_var("PATH"), ":");
-    each (&parts) (part){
-        println("part: " + part);
-    }
+    //each (&parts) (part){
+    //    println("part: " + part);
+    //}
+    iterdir("/Users/luxangelus/");
+    //each (&dirarr) (item){
+    //    println("path: " + item);
+    //}
 }

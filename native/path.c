@@ -1,5 +1,7 @@
+#include "list.h"
 #include<stdlib.h>
 #include<stdio.h>
+#include<string.h>
 #include<sys/stat.h>
 #include<unistd.h>
 #include<dirent.h>
@@ -27,6 +29,32 @@ long exists(ValeStr* path) {
         fclose(file);
         return retval;
     }
+}
+
+StrChain* iterdir(ValeStr* path) {
+    vale_queue* entries = vale_queue_empty(); 
+    if(is_file(path)) {
+        printf("is a file not a path");
+        exit(0);
+    }
+    DIR* d;
+    struct dirent *dir;
+    d = opendir(path->chars);
+    if(d) {
+        while((dir = readdir(d)) != NULL){
+            printf("%s\n", dir->d_name);
+            long length = strlen(dir->d_name);
+            char* path_name = malloc(length+1);
+            strcpy(path_name, dir->d_name);
+            vale_queue_push(entries, path_name); 
+        } 
+    }else{
+        printf("cannot open directory");
+        exit(0); 
+    }
+    long length = entries->length;
+    StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
+    printf("the length is: %d\n", length);
 }
 #include <stdint.h>
 #include <assert.h>

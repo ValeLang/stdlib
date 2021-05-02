@@ -1,6 +1,33 @@
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
 
+struct Subprocess {
+    path List<str>;
+    cmd Command;
+    result int; 
+}
+
+fn create_process(cmd str, args Array<imm, str>, path Array<imm, str>){
+    if (exists(cmd) != 1) {
+        println("no such command");
+        panic();  
+    }
+     
+    if (is_dir(cmd) == 1) {
+        println("directories aren't executable");
+        panic(); 
+    }
+     
+}
+
+fn from_path(cmd str, args Array<imm, str>) {
+    path = List<str>();
+    each (&split(get_env_var("PATH"), ":")) (element){
+        path!.add(str(element));
+    }
+    ret create_process(cmd, args, path.toArray());
+}
+
 struct Command export imm{
     handle int;
 }

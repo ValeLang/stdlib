@@ -1,6 +1,7 @@
 fn is_dir(value str) int extern;
 fn is_file(value str) int extern;
 fn exists(path str) int extern;
+fn iterdir(path str) void extern;
 
 fn readFileAsString(filenameVStr str) str extern;
 fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
