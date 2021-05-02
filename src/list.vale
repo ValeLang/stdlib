@@ -121,12 +121,12 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
     maybeFirstAndRest = haystack.splitOnce(needle);
     if (maybeFirstAndRest.isEmpty()) {
       if (haystack.len() > 0) {
-        result.add(haystack);
+        add<StrSlice>(&!result, haystack);
       }
       ret result;
     }
     (first, rest) = maybeFirstAndRest.get();
-    result.add(first);
+    add(&!result, first);
     mut haystack = rest;
   }
 

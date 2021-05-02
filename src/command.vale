@@ -1,9 +1,11 @@
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
 
-struct Command imm{
+struct Command export imm{
     handle int;
 }
+
+//export Command as ExCommand;
 
 fn get_env_var(name str) str extern;
 fn launch_command(args Array<imm,str>) Command extern;

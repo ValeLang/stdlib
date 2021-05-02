@@ -18,5 +18,8 @@ fn main() export {
     //create_command(immarr);
     //println("output: " + read_child_stdout(cmd, 12));
     println("PATH is: " + get_env_var("PATH"));
-    list = List<str>();
+    parts = split(get_env_var("PATH"), ":");
+    each (&parts) (part){
+        println("part: " + part);
+    }
 }
