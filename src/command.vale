@@ -7,10 +7,18 @@ struct Subprocess {
     result int; 
 }
 
-fn create_process(cmd str, args Array<imm, str>, path Array<imm, str>){
+fn create_process(cmd str, args Array<imm, str>, paths Array<imm, str>){
+    outcmd! = cmd; 
     if (exists(cmd) != 1) {
-        println("no such command");
-        panic();  
+        each (&paths) (path){
+            cmds = iterdir(path);
+            each (&cmds) (exec){
+                if(exec == cmd){
+                    mut outcmd = path + exec;
+                    println("found command: " + cmd);
+                }
+            }
+        } 
     }
      
     if (is_dir(cmd) == 1) {

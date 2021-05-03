@@ -3,7 +3,7 @@
 #include<stdlib.h>
 
 typedef struct vale_basic_array{
-    long length;
+    unsigned long length;
     void* elements[0];
 } vale_basic_array;
 
@@ -13,7 +13,7 @@ typedef struct vale_node_q {
 } vale_node_q;
 
 typedef struct vale_queue {
-    long length;
+    unsigned long length;
     vale_node_q* head;
 } vale_queue;
 
@@ -41,16 +41,18 @@ void* vale_queue_pop(vale_queue* q) {
     if(!q->head) { return NULL; }
     vale_node_q* temp = q->head->next;
     void* retval = q->head->data;
-    //free(q->head);   
+    free(q->head);   
     q->head = temp;
     q->length--;
     return retval; 
 }
 
 vale_basic_array* vale_queue_to_array(vale_queue* q) {
-    vale_basic_array* array = malloc(sizeof(long) + q->length + 1);
-    for(unsigned long i = 0; i < q->length; i++){
-        array->elements[i] = vale_queue_pop(q);
+    vale_basic_array* array = malloc(sizeof(unsigned long) + (q->length + 1) * sizeof(void*));
+    array->length = q->length;
+    for(unsigned long i = 0; i < array->length; i++){
+	    void* ptr = vale_queue_pop(q);
+        array->elements[i] = ptr;
     }
     return array; 
 }

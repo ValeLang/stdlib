@@ -7,6 +7,9 @@
 #include<dirent.h>
 #include<errno.h>
 #include "StrChain.h"
+
+ValeStr* ValeStrNew(int64_t length);
+
 long is_file(ValeStr* path) {
     struct stat path_stat;
     stat(path->chars, &path_stat);
@@ -42,10 +45,9 @@ StrChain* iterdir(ValeStr* path) {
     d = opendir(path->chars);
     if(d) {
         while((dir = readdir(d)) != NULL){
-            printf("%s\n", dir->d_name);
-            long length = strlen(dir->d_name);
-            char* path_name = malloc(length+1);
-            strcpy(path_name, dir->d_name);
+            int64_t length = strlen(dir->d_name);
+            ValeStr* path_name = ValeStrNew(length);
+            strcpy(path_name->chars, dir->d_name);
             vale_queue_push(entries, path_name); 
         }
         closedir(d); 
@@ -58,11 +60,11 @@ StrChain* iterdir(ValeStr* path) {
     printf("the length is: %d\n", length);
     printf("retval length is: %d\n", retval->length);
     vale_queue_destroy(entries);
+    printf("%s\n", retval->elements[0]->chars);
+    return retval;
 }
 #include <stdint.h>
 #include <assert.h>
-
-ValeStr* ValeStrNew(int64_t length);
 
 // Aborts on failure, beware!
 ValeStr* readFileAsString(ValeStr* filenameVStr) {
