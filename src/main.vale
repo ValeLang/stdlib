@@ -10,11 +10,13 @@ fn main() export {
         println("part: " + part);
     }
     //iterdir("/cardinal/");
-    dirarr = iterdir("/cardinal/");
+    dirarr = iterdir(".");
     each (&dirarr) (item){
         println("path: " + item);
     }
-    arr = MakeArray(1, (i){ "'hello world'" });
+    arr! = List<str>();
+    arr!.add<str>("'hello world'");
+    //arrimm = MakeImmArray(arr.len(), &!(i){ arr.get(i) });
     //immarr = toArray<imm,str>(&arr);
     from_path("echo", arr);
 }

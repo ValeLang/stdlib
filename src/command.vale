@@ -1,5 +1,6 @@
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
+export Array<mut, str> as MutStrChain;
 
 struct Subprocess {
     path List<str>;
@@ -7,10 +8,14 @@ struct Subprocess {
     result int; 
 }
 
-fn create_process(cmd str, args Array<imm, str>, paths Array<imm, str>){
-    outcmd! = cmd; 
+fn create_process(cmd str, args! List<str>, paths! List<str>){
+    //outcmd! = cmd; 
+    outcmd! = "hello"; 
+    println("in create_process");    
     if (exists(cmd) != 1) {
-        each (&paths) (path){
+       println("path exists");  
+       each (&paths) (path){
+            println("path name: " + path); 
             cmds = iterdir(path);
             each (&cmds) (exec){
                 if(exec == cmd){
@@ -20,20 +25,21 @@ fn create_process(cmd str, args Array<imm, str>, paths Array<imm, str>){
             }
         } 
     }
-     
+    
+    println("after loop"); 
     if (is_dir(cmd) == 1) {
-        println("directories aren't executable");
-        panic(); 
+        //println("directories aren't executable");
+        panic("directories aren't executable"); 
     }
      
 }
 
-fn from_path(cmd str, args Array<imm, str>) {
-    path = List<str>();
-    each (&split(get_env_var("PATH"), ":")) (element){
-        path!.add(str(element));
+fn from_path(cmd str, args! List<str>) {
+    path! = List<str>();
+    each (&get_env_var("PATH").split(":")) (path_val){
+        path!.add(str(path_val));
     }
-    ret create_process(cmd, args, path.toArray());
+    ret create_process(cmd, args, path);
 }
 
 struct Command export imm{
