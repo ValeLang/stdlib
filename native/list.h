@@ -41,7 +41,7 @@ void* vale_queue_pop(vale_queue* q) {
     if(!q->head) { return NULL; }
     vale_node_q* temp = q->head->next;
     void* retval = q->head->data;
-    free(q->head);   
+    //free(q->head);   
     q->head = temp;
     q->length--;
     return retval; 
@@ -57,6 +57,7 @@ vale_basic_array* vale_queue_to_array(vale_queue* q) {
 
 void vale_queue_destroy(vale_queue* q) {
     while(vale_queue_pop(q) != NULL) {}
+    free(q);
 }
 
 #endif

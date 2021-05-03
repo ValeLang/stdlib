@@ -47,7 +47,8 @@ StrChain* iterdir(ValeStr* path) {
             char* path_name = malloc(length+1);
             strcpy(path_name, dir->d_name);
             vale_queue_push(entries, path_name); 
-        } 
+        }
+        closedir(d); 
     }else{
         printf("cannot open directory");
         exit(0); 
@@ -55,6 +56,8 @@ StrChain* iterdir(ValeStr* path) {
     long length = entries->length;
     StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
     printf("the length is: %d\n", length);
+    printf("retval length is: %d\n", retval->length);
+    vale_queue_destroy(entries);
 }
 #include <stdint.h>
 #include <assert.h>
