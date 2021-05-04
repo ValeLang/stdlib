@@ -14,9 +14,8 @@ fn main() export {
     each (&dirarr) (item){
         println("path: " + item);
     }
+    println("after loop");
     arr! = List<str>();
     arr!.add<str>("'hello world'");
-    //arrimm = MakeImmArray(arr.len(), &!(i){ arr.get(i) });
-    //immarr = toArray<imm,str>(&arr);
     from_path("echo", arr);
 }

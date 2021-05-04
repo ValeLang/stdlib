@@ -9,7 +9,6 @@ struct Subprocess {
 }
 
 fn create_process(cmd str, args! List<str>, paths! List<str>){
-    //outcmd! = cmd; 
     outcmd! = "hello"; 
     println("in create_process");    
     if (exists(cmd) != 1) {
@@ -19,19 +18,24 @@ fn create_process(cmd str, args! List<str>, paths! List<str>){
             cmds = iterdir(path);
             each (&cmds) (exec){
                 if(exec == cmd){
-                    mut outcmd = path + exec;
+                    mut outcmd = path + "/" + exec;
                     println("found command: " + cmd);
                 }
             }
         } 
+    }else{
+        mut outcmd = cmd;
+    }
+
+    if (outcmd == "hello") {
+        panic("unable to find command " + cmd);
     }
     
-    println("after loop"); 
-    if (is_dir(cmd) == 1) {
-        //println("directories aren't executable");
+    println("after loop: " + outcmd); 
+    if (is_dir(outcmd) == 1) {
         panic("directories aren't executable"); 
     }
-     
+    imm = args.toArray<imm, str>(); 
 }
 
 fn from_path(cmd str, args! List<str>) {

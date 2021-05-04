@@ -8,12 +8,17 @@
 #include<errno.h>
 #include "StrChain.h"
 
+long exists(ValeStr* path);
 ValeStr* ValeStrNew(int64_t length);
 
-long is_file(ValeStr* path) {
+long vale_is_file_internal(ValeStr* path) {
     struct stat path_stat;
     stat(path->chars, &path_stat);
     return S_ISREG(path_stat.st_mode);    
+}
+
+long is_file(ValeStr* path) {
+    return exists(path) && vale_is_file_internal(path);
 }
 
 long is_dir(ValeStr* path) {
@@ -21,7 +26,7 @@ long is_dir(ValeStr* path) {
 }
 
 long exists(ValeStr* path) {
-    if(is_dir(path)) {
+    if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
         long retval = dir ? 1 : 0;
         closedir(dir);
@@ -52,8 +57,10 @@ StrChain* iterdir(ValeStr* path) {
         }
         closedir(d); 
     }else{
-        printf("cannot open directory");
-        exit(0); 
+        printf("cannot open directory: %s\n", path->chars);
+        StrChain* retval = malloc(sizeof(long));
+        retval->length = 0;
+        return retval;
     }
     long length = entries->length;
     StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
