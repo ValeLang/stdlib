@@ -1,3 +1,18 @@
+struct Path {
+    segments List<str>;
+    drive Opt<str>;
+}
+fn to_windows_path(path &Path) str {
+    retval! = "";
+    //if(path.is_relative == false){
+    //    mut retval = drive;
+    //}
+    
+}
+fn to_unix_path(path &Path) str {
+    retval! = "";
+     
+}
 fn is_dir(value str) int extern;
 fn is_file(value str) int extern;
 fn exists(path str) int extern;
