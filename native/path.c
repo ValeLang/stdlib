@@ -42,7 +42,7 @@ long exists(ValeStr* path) {
 StrChain* iterdir(ValeStr* path) {
     vale_queue* entries = vale_queue_empty(); 
     if(is_file(path)) {
-        printf("is a file not a path");
+        perror("is a file not a path");
         exit(0);
     }
     DIR* d;
@@ -64,10 +64,7 @@ StrChain* iterdir(ValeStr* path) {
     }
     long length = entries->length;
     StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
-    printf("the length is: %d\n", length);
-    printf("retval length is: %d\n", retval->length);
     vale_queue_destroy(entries);
-    printf("%s\n", retval->elements[0]->chars);
     return retval;
 }
 #include <stdint.h>
@@ -116,8 +113,6 @@ void writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   char *filename = filenameVStr->chars;
   char* contents = contentsVStr->chars;
   int contentsLen = contentsVStr->length;
-
-  //printf("contents len: %d\n", contentsLen);
 
   FILE *fp = fopen(filename, "wb");
   if (!fp) {

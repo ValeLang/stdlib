@@ -7,15 +7,15 @@ fn func_test(empty int) { ret "rcho"; }
 fn main() export {
     parts = split(get_env_var("PATH"), ":");
     each (&parts) (part){
-        println("part: " + part);
+        //println("part: " + part);
     }
     //iterdir("/cardinal/");
     dirarr = iterdir(".");
     each (&dirarr) (item){
-        println("path: " + item);
+        //println("path: " + item);
     }
-    println("after loop");
     arr! = List<str>();
-    arr!.add<str>("'hello world'");
-    from_path("echo", arr);
+    arr!.add<str>("src/main.vale");
+    command = from_path("cat", arr);
+    println(read_child_stdout(command, 600));
 }

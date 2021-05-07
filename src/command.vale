@@ -2,24 +2,14 @@
 export Array<imm, str> as StrChain;
 export Array<mut, str> as MutStrChain;
 
-struct Subprocess {
-    path List<str>;
-    cmd Command;
-    result int; 
-}
-
-fn create_process(cmd str, args! List<str>, paths! List<str>){
-    outcmd! = "hello"; 
-    println("in create_process");    
+fn create_process(cmd str, args! List<str>, paths! List<str>) Command {
+    outcmd! = "hello";   
     if (exists(cmd) != 1) {
-       println("path exists");  
        each (&paths) (path){
-            println("path name: " + path); 
             cmds = iterdir(path);
             each (&cmds) (exec){
                 if(exec == cmd){
                     mut outcmd = path + "/" + exec;
-                    println("found command: " + cmd);
                 }
             }
         } 
@@ -30,15 +20,20 @@ fn create_process(cmd str, args! List<str>, paths! List<str>){
     if (outcmd == "hello") {
         panic("unable to find command " + cmd);
     }
-    
-    println("after loop: " + outcmd); 
     if (is_dir(outcmd) == 1) {
         panic("directories aren't executable"); 
     }
-    imm = args.toArray<imm, str>(); 
+    
+    cmdlist! = List<str>();
+    cmdlist!.add(outcmd);
+    each (&args) (element){
+        cmdlist!.add(element);
+    }
+    command = launch_command(cmdlist.toImmArray());
+    ret command;
 }
 
-fn from_path(cmd str, args! List<str>) {
+fn from_path(cmd str, args! List<str>) Command {
     path! = List<str>();
     each (&get_env_var("PATH").split(":")) (path_val){
         path!.add(str(path_val));
@@ -49,8 +44,6 @@ fn from_path(cmd str, args! List<str>) {
 struct Command export imm{
     handle int;
 }
-
-//export Command as ExCommand;
 
 fn get_env_var(name str) str extern;
 fn launch_command(args Array<imm,str>) Command extern;
