@@ -1,11 +1,49 @@
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
+export Array<mut, str> as MutStrChain;
+
+fn create_process(cmd str, args! List<str>, paths! List<str>) Command {
+    outcmd! = "hello";   
+    if (exists(cmd) != 1) {
+       each (&paths) (path){
+            cmds = iterdir(path);
+            each (&cmds) (exec){
+                if(exec == cmd){
+                    mut outcmd = path + "/" + exec;
+                }
+            }
+        } 
+    }else{
+        mut outcmd = cmd;
+    }
+
+    if (outcmd == "hello") {
+        panic("unable to find command " + cmd);
+    }
+    if (is_dir(outcmd) == 1) {
+        panic("directories aren't executable"); 
+    }
+    
+    cmdlist! = List<str>();
+    cmdlist!.add(outcmd);
+    each (&args) (element){
+        cmdlist!.add(element);
+    }
+    command = launch_command(cmdlist.toImmArray());
+    ret command;
+}
+
+fn from_path(cmd str, args! List<str>) Command {
+    path! = List<str>();
+    each (&get_env_var("PATH").split(":")) (path_val){
+        path!.add(str(path_val));
+    }
+    ret create_process(cmd, args, path);
+}
 
 struct Command export imm{
     handle int;
 }
-
-//export Command as ExCommand;
 
 fn get_env_var(name str) str extern;
 fn launch_command(args Array<imm,str>) Command extern;

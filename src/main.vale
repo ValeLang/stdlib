@@ -4,22 +4,18 @@ fn run() void {
 
 fn func_test(empty int) { ret "rcho"; }
 
-fn toArray<M, T>(source &Array<_, T>) Array<M, &T> {
-  Array<M, &T>(
-    source.len(),
-    &!IFunction1<mut, int, T>((i){ source[i] }))
-}
-
 fn main() export {
-    //arr = MakeArray(2, (i){ "hello" });
-    //mut arr[0] = "echo";
-    //mut arr[1] = "'hello world'";
-    //immarr = toArray<imm, str>(&arr);     
-    //create_command(immarr);
-    //println("output: " + read_child_stdout(cmd, 12));
-    println("PATH is: " + get_env_var("PATH"));
     parts = split(get_env_var("PATH"), ":");
     each (&parts) (part){
-        println("part: " + part);
+        //println("part: " + part);
     }
+    //iterdir("/cardinal/");
+    dirarr = iterdir(".");
+    each (&dirarr) (item){
+        //println("path: " + item);
+    }
+    arr! = List<str>();
+    arr!.add<str>("src/main.vale");
+    command = from_path("cat", arr);
+    println(read_child_stdout(command, 600));
 }

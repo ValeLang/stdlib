@@ -1,14 +1,24 @@
+#include "list.h"
 #include<stdlib.h>
 #include<stdio.h>
+#include<string.h>
 #include<sys/stat.h>
 #include<unistd.h>
 #include<dirent.h>
 #include<errno.h>
 #include "StrChain.h"
-long is_file(ValeStr* path) {
+
+long exists(ValeStr* path);
+ValeStr* ValeStrNew(int64_t length);
+
+long vale_is_file_internal(ValeStr* path) {
     struct stat path_stat;
     stat(path->chars, &path_stat);
     return S_ISREG(path_stat.st_mode);    
+}
+
+long is_file(ValeStr* path) {
+    return exists(path) && vale_is_file_internal(path);
 }
 
 long is_dir(ValeStr* path) {
@@ -16,7 +26,7 @@ long is_dir(ValeStr* path) {
 }
 
 long exists(ValeStr* path) {
-    if(is_dir(path)) {
+    if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
         long retval = dir ? 1 : 0;
         closedir(dir);
@@ -28,10 +38,37 @@ long exists(ValeStr* path) {
         return retval;
     }
 }
+
+StrChain* iterdir(ValeStr* path) {
+    vale_queue* entries = vale_queue_empty(); 
+    if(is_file(path)) {
+        perror("is a file not a path");
+        exit(0);
+    }
+    DIR* d;
+    struct dirent *dir;
+    d = opendir(path->chars);
+    if(d) {
+        while((dir = readdir(d)) != NULL){
+            int64_t length = strlen(dir->d_name);
+            ValeStr* path_name = ValeStrNew(length);
+            strcpy(path_name->chars, dir->d_name);
+            vale_queue_push(entries, path_name); 
+        }
+        closedir(d); 
+    }else{
+        printf("cannot open directory: %s\n", path->chars);
+        StrChain* retval = malloc(sizeof(long));
+        retval->length = 0;
+        return retval;
+    }
+    long length = entries->length;
+    StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
+    vale_queue_destroy(entries);
+    return retval;
+}
 #include <stdint.h>
 #include <assert.h>
-
-ValeStr* ValeStrNew(int64_t length);
 
 // Aborts on failure, beware!
 ValeStr* readFileAsString(ValeStr* filenameVStr) {
@@ -76,8 +113,6 @@ void writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   char *filename = filenameVStr->chars;
   char* contents = contentsVStr->chars;
   int contentsLen = contentsVStr->length;
-
-  //printf("contents len: %d\n", contentsLen);
 
   FILE *fp = fopen(filename, "wb");
   if (!fp) {

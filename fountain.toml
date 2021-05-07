@@ -12,5 +12,5 @@ link_paths = ["build/subprocess.o"]
 
 [[imports]]
 command = "clang"
-args = ["-c", "native/path.c", "-o", "build/path.o"]
+args = ["-c",  "native/path.c", "-o", "build/path.o"]
 link_paths = ["build/path.o"]
