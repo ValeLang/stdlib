@@ -1,6 +1,8 @@
 #ifndef STRCHAIN_HEADER_VALE
 #define STRCHAIN_HEADER_VALE
 
+typedef long ValeInt;
+
 typedef struct ValeStr {
     unsigned long length;
     char chars[0]; 

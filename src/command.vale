@@ -2,7 +2,7 @@
 export Array<imm, str> as StrChain;
 export Array<mut, str> as MutStrChain;
 
-fn create_process(cmd str, args! List<str>, paths! List<str>) Command {
+fn create_process(cmd str, args! List<str>, paths! List<str>) int {
     outcmd! = "hello";   
     if (exists(cmd) != 1) {
        each (&paths) (path){
@@ -33,7 +33,7 @@ fn create_process(cmd str, args! List<str>, paths! List<str>) Command {
     ret command;
 }
 
-fn from_path(cmd str, args! List<str>) Command {
+fn from_path(cmd str, args! List<str>) int {
     path! = List<str>();
     each (&get_env_var("PATH").split(":")) (path_val){
         path!.add(str(path_val));
@@ -41,11 +41,7 @@ fn from_path(cmd str, args! List<str>) Command {
     ret create_process(cmd, args, path);
 }
 
-struct Command export imm{
-    handle int;
-}
-
 fn get_env_var(name str) str extern;
-fn launch_command(args Array<imm,str>) Command extern;
-fn read_child_stdout(cmd Command, len int) str extern;
-fn read_child_stderr(cmd Command, len int) str extern;
+fn launch_command(args Array<imm,str>) int extern;
+fn read_child_stdout(cmd int, len int) str extern;
+fn read_child_stderr(cmd int, len int) str extern;

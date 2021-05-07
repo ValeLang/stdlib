@@ -5,7 +5,7 @@
 #include<string.h>
 ValeStr* ValeStrNew(int64_t length);
 
-long read_into_buffer(char* buffer, long bytes, FILE* stream){
+long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
     long i = 0;
     for(i = 0; i < bytes; i++){
         if(feof(stream)) {
@@ -39,41 +39,37 @@ char** vale_to_char_arr(StrChain* chains) {
     return args; 
 }
 
-typedef struct Command {
-    unsigned long handle;
-} Command;
-
-Command* launch_command(StrChain* chain) {
-    Command* out = (Command*)malloc(sizeof(Command));
+ValeInt launch_command(StrChain* chain) {
+    ValeInt out = 0;
     const char** args = (const char**)vale_to_char_arr(chain);
     struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
     if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
         perror("command creation failed");
     }
-    out->handle = (unsigned long)subproc;
+    out = (unsigned long)subproc;
     free(args);
     ValeReleaseMessage(chain); 
     return out;
 }
 
-ValeStr* read_child_stdout(Command* cmd, long bytes) {
+ValeStr* read_child_stdout(ValeInt cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1); 
-    FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd->handle); 
+    FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
     out->chars[bytes] = '\0'; 
     out->length = read_len;
     return out;
 }
 
-ValeStr* read_child_stderr(Command* cmd, long bytes) {
+ValeStr* read_child_stderr(ValeInt cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1);
-    FILE* stderr_handle = subprocess_stderr((struct subprocess_s*)cmd->handle); 
+    FILE* stderr_handle = subprocess_stderr((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stderr_handle);
     out->chars[bytes] = '\0'; 
     out->length = read_len;
     return out;
 }
 
-void write_child_stdin(Command* cmd, ValeStr* contents) {
+void write_child_stdin(ValeInt cmd, ValeStr* contents) {
     
 }
