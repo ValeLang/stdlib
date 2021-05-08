@@ -4,13 +4,16 @@ vale_version = "0.1.1"
 author = "cardinal"
 git = "https://github.com/ValeLang/stdlib"
 readme = "README.md"
+platforms = ["native"]
 
 [[imports]]
+platform = "native"
 command = "clang"
 args = ["-c", "native/subprocess.c", "-o", "build/subprocess.o"]
 link_paths = ["build/subprocess.o"]
 
 [[imports]]
+platform = "native"
 command = "clang"
 args = ["-c",  "native/path.c", "-o", "build/path.o"]
 link_paths = ["build/path.o"]
