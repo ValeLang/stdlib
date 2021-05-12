@@ -71,6 +71,15 @@ fn each<E, F>(list &!List<E>, func F) void {
   }
 }
 
+fn enumerate<E, F>(self &!List<E>, func F) void {
+    i! = 0;
+    l = self.len();
+    while (i < l) {
+         func(self.get(i), i);
+         mut i = i + 1;
+    }
+}
+
 fn contains<E>(list &List<E>, element E) bool {
   i! = 0;
   l = len(&list);

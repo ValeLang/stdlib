@@ -12,6 +12,16 @@ fn spawn(command str, args! List<str>) Subprocess {
     ret retval;
 }
 
+fn spawn(command str) Subprocess {
+    list! = command.split(" ");
+    cmd = str(list.get(0));
+    newlist! = List<str>();
+    enumerate(&!list, (element, index){
+        if(index != 0) { newlist!.add(str(list.get(index))); }
+    });
+    ret spawn(cmd, newlist);
+}
+
 struct ExecResult export {
     returnCode int;
     stdout str;
