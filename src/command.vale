@@ -6,6 +6,7 @@ struct Subprocess {
     handle int;
 }
 
+/// tried using a &List to solve . issue
 fn spawn(command str, args &List<str>) Subprocess {
     handle = from_path(command, args);
     retval = Subprocess(handle);
