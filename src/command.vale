@@ -6,6 +6,14 @@ struct Subprocess {
     handle int;
 }
 
+fn spawn(command str, args &List<StrSlice>) Subprocess {
+    newlist! = List<str>();
+    each (&args)(element){
+        newlist!.add(element);
+    }
+    ret spawn(command, &newlist);
+}
+
 /// tried using a &List to solve . issue
 fn spawn(command str, args &List<str>) Subprocess {
     handle = from_path(command, args);
