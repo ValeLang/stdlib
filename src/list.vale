@@ -71,7 +71,7 @@ fn each<E, F>(list &!List<E>, func F) void {
   }
 }
 
-fn enumerate<E, F>(self &!List<E>, func F) void {
+fn enumerate<E, F>(self &List<E>, func F) void {
     i! = 0;
     l = self.len();
     while (i < l) {
