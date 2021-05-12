@@ -25,6 +25,13 @@ long is_dir(ValeStr* path) {
     return !is_file(path);
 }
 
+long makeDirectory(ValeStr* path) {
+    if(!exists(path)) {
+        return mkdir(path->chars, 777);
+    }
+    return 1;
+}
+
 long exists(ValeStr* path) {
     if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
