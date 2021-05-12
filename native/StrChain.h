@@ -4,7 +4,7 @@
 typedef long ValeInt;
 
 typedef struct ValeStr {
-    unsigned long length;
+    long length;
     char chars[0]; 
 } ValeStr;
 

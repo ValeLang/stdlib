@@ -2,6 +2,29 @@
 export Array<imm, str> as StrChain;
 export Array<mut, str> as MutStrChain;
 
+struct Subprocess {
+    handle int;
+}
+
+fn spawn(command str, args! List<str>) Subprocess {
+    handle = from_path(command, args);
+    retval = Subprocess(handle);
+    ret retval;
+}
+
+struct ExecResult export {
+    returnCode int;
+    stdout str;
+    stderr str;
+}
+
+fn join(self &Subprocess, read_len int) ExecResult {
+    stdout = read_child_stdout(self.handle, read_len);
+    stderr = read_child_stderr(self.handle, read_len);
+    resultCode = join_subprocess(self.handle);
+    ret ExecResult(resultCode, stdout, stderr);
+}
+
 fn create_process(cmd str, args! List<str>, paths! List<str>) int {
     outcmd! = "hello";   
     if (exists(cmd) != 1) {
@@ -45,3 +68,4 @@ fn get_env_var(name str) str extern;
 fn launch_command(args Array<imm,str>) int extern;
 fn read_child_stdout(cmd int, len int) str extern;
 fn read_child_stderr(cmd int, len int) str extern;
+fn join_subprocess(cmd int) int extern;

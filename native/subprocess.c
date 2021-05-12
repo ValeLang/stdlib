@@ -58,6 +58,7 @@ ValeStr* read_child_stdout(ValeInt cmd, long bytes) {
     long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
     out->chars[bytes] = '\0'; 
     out->length = read_len;
+    fclose(stdout_handle);
     return out;
 }
 
@@ -67,9 +68,16 @@ ValeStr* read_child_stderr(ValeInt cmd, long bytes) {
     long read_len = read_into_buffer(out->chars, bytes, stderr_handle);
     out->chars[bytes] = '\0'; 
     out->length = read_len;
+    fclose(stderr_handle);
     return out;
 }
 
 void write_child_stdin(ValeInt cmd, ValeStr* contents) {
     
+}
+
+long join_subprocess(long handle){
+    int result;
+    subprocess_join((struct subprocess_s*)handle, &result);
+    return result;  
 }

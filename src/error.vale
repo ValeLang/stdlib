@@ -1,0 +1,8 @@
+struct Call {
+    name str; 
+}
+
+interface Error {
+    fn description(virtual self &Error) str;
+    fn trace(virtual self &Error) List<Call>;    
+}

@@ -29,12 +29,12 @@ long exists(ValeStr* path) {
     if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
         long retval = dir ? 1 : 0;
-        closedir(dir);
+        if(retval) { closedir(dir); }
         return retval;
     }else{
         FILE* file = fopen(path->chars, "r");
         long retval = file ? 1 : 0; 
-        fclose(file);
+        if(retval) { fclose(file); }
         return retval;
     }
 }
