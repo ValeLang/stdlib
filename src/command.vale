@@ -9,7 +9,7 @@ struct Subprocess {
 fn spawn(command str, args &List<StrSlice>) Subprocess {
     newlist! = List<str>();
     each (&args) (element){
-        newlist!.add(element);
+        newlist!.add(str(element));
     }
     ret spawn(command, &newlist);
 }
