@@ -25,7 +25,7 @@ fn spawn(command str) Subprocess {
     list! = command.split(" ");
     cmd = str(list.get(0));
     newlist! = List<str>();
-    enumerate(&!list, (element, index){
+    enumerate(&list, (element, index){
         if(index != 0) { newlist!.add(str(list.get(index))); }
     });
     ret spawn(cmd, &newlist);
