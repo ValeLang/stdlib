@@ -27,7 +27,7 @@ long is_dir(ValeStr* path) {
 
 long makeDirectory(ValeStr* path) {
     if(!exists(path)) {
-        return mkdir(path->chars, 777);
+        return mkdir(path->chars, 0700);
     }
     return 1;
 }
