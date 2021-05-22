@@ -3,6 +3,8 @@
 // 
 //     When building, you will get a big, scary error!
 //     Let's just wait for Verdagon to fix that...
+// NOTE(Evan):
+//     LO, THIS IS NO LONGER BORKED
 
 
 // A full representation of a possible flag.
@@ -130,6 +132,17 @@ impl FlagType for FlagBool;
 struct FlagAnyList { value List<FlagType>; }
 impl FlagType for FlagAnyList;
 
+fn get_nothing_flag(parsed_flag_list &ParsedFlagList, flag_name str) bool {
+    i! = 0;
+    while (i < parsed_flag_list.parsed_flags.len()) {
+        if (parsed_flag_list.parsed_flags.get(i).name == flag_name) {
+            ret true;
+        }
+        set i = i + 1;
+    }
+    ret false;
+}
+
 // Verifies a @Command matches one of the commands in the @CommandList.
 // 
 // # generics:
@@ -188,15 +201,15 @@ fn parse_all_flags<N>(flag_list [N * Flag], args Array<imm, str>) ParsedFlagList
         });
 
         if (valid and flag_type != FLAG_NOTHING()) {
-            parsed_flag_list.parsed_flags.add(parse_flag(args, flag_type, &i));
+            parsed_flag_list.parsed_flags!.add(parse_flag(args, flag_type, &i));
         }
 
         else if (flag_type == FLAG_NOTHING()) {
-            parsed_flag_list.parsed_flags.add(ParsedFlag(args[i], FlagString("")));
+            parsed_flag_list.parsed_flags!.add(ParsedFlag(args[i], FlagString("")));
         }
 
         else {
-            parsed_flag_list.invalid_flags.add(arg);
+            parsed_flag_list.invalid_flags!.add(arg);
         }
 
         mut i = i + 1;
@@ -215,7 +228,7 @@ fn parse_all_flags<N>(flag_list [N * Flag], args Array<imm, str>) ParsedFlagList
 // 
 // # returns:
 // 1) A list of parsed and invalid flags.
-fn parse_flag(args Array<imm, str>, flag_type int, i &int) ParsedFlag {
+fn parse_flag(args Array<imm, str>, flag_type int, i! int) ParsedFlag {
     name = args[i];
 
     // Curse Verdagon and his lack of matches! lol

@@ -1,0 +1,195 @@
+import stdlib.src.collections.*;
+
+fn startsWith(a str, b str) bool { startsWith(a.slice(), b.slice()) }
+fn startsWith(a str, b StrSlice) bool { startsWith(a.slice(), b) }
+fn startsWith(a StrSlice, b str) bool { startsWith(a, b.slice()) }
+fn startsWith(a StrSlice, b StrSlice) bool {
+  if (b.len() > a.len()) {
+    ret false;
+  }
+  ret a.slice(0, b.len()) == b;
+}
+
+
+fn endsWith(a str, b str) bool { endsWith(a.slice(), b.slice()) }
+fn endsWith(a str, b StrSlice) bool { endsWith(a.slice(), b) }
+fn endsWith(a StrSlice, b str) bool { endsWith(a, b.slice()) }
+fn endsWith(a StrSlice, b StrSlice) bool {
+  = a.slice(a.len() - b.len(), a.len()) == b;
+}
+
+
+fn splice(original str, at int, removeNumChars int, insert str) {
+  before = original.slice(0, at).str();
+  after = original.slice(at + removeNumChars, original.len()).str();
+  = before + insert + after;
+}
+
+
+fn ltrim(s str) StrSlice { ltrim(s.slice()) }
+fn ltrim(s! StrSlice) StrSlice {
+  whitespace = " \r\n\t";
+  while (true) {
+    if (s == "") {
+      ret s;
+    }
+    if (whitespace.find(s.slice(0, 1)).isEmpty()) {
+      ret s;
+    }
+    set s = s.slice(1, s.len());
+  }
+  panic("unreachable");
+}
+fn rtrim(s str) StrSlice { rtrim(s.slice()) }
+fn rtrim(s! StrSlice) StrSlice {
+  whitespace = " \r\n\t";
+  while (true) {
+    if (s == "") {
+      ret s;
+    }
+    if (whitespace.find(s.slice(s.len() - 1, s.len())).isEmpty()) {
+      ret s;
+    }
+    set s = s.slice(0, s.len() - 1);
+  }
+  panic("unreachable");
+}
+
+fn trim(s str) StrSlice { trim(s.slice()) }
+fn trim(s! StrSlice) StrSlice { ltrim(rtrim(s)) }
+
+fn isWhitespace(s str) bool { isWhitespace(s.slice()) }
+fn isWhitespace(s! StrSlice) bool {
+  while (len(s) > 0) {
+    if (" \r\n\t".find(s).isEmpty()) {
+      // then its not whitespace
+      ret false;
+    }
+    set s = s.slice(1);
+  }
+  ret true;
+}
+
+
+fn ltrimnl(s str) StrSlice { ltrimnl(s.slice()) }
+fn ltrimnl(s! StrSlice) StrSlice {
+  while (true) {
+    if (s == "") {
+      ret s;
+    }
+    if (s.slice(0, 1) != "\n") {
+      ret s;
+    }
+    set s = s.slice(1, s.len());
+  }
+  panic("unreachable");
+}
+fn rtrimnl(s str) StrSlice { rtrimnl(s.slice()) }
+fn rtrimnl(s! StrSlice) StrSlice {
+  whitespace = " \r\n\t";
+  while (true) {
+    if (s == "") {
+      ret s;
+    }
+    if (s.slice(s.len() - 1, s.len()) != "\n") {
+      ret s;
+    }
+    set s = s.slice(0, s.len() - 1);
+  }
+  panic("unreachable");
+}
+
+fn trimnl(s str) StrSlice { trimnl(s.slice()) }
+fn trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
+
+fn int(s! StrSlice) Opt<int> {
+  hasNegative! = false;
+  totalSoFar! = 0;
+
+  if (s == "") {
+    ret None<int>();
+  }
+
+  while (s != "") {
+    digitStr = s.slice(0, 1);
+
+    if (digitStr == "-") {
+      set hasNegative = true;
+    } else {
+      ascii = toAscii(digitStr);
+      if (ascii < 48 or ascii >= 58) {
+        ret None<int>();
+      }
+      digit = ascii - 48;
+      set totalSoFar = totalSoFar * 10 + digit;
+    }
+
+    set s = s.slice(1);
+  }
+
+  ret Some(totalSoFar);
+}
+
+struct SplitResult {
+  beforeSplit StrSlice;
+  afterSplit StrSlice;
+}
+fn splitOnce(haystack str, needle str) Opt<SplitResult> {
+  splitOnce(haystack.slice(), needle.slice())
+}
+fn splitOnce(haystack StrSlice, needle str) Opt<SplitResult> {
+  splitOnce(haystack, needle.slice())
+}
+fn splitOnce(haystack str, needle StrSlice) Opt<SplitResult> {
+  splitOnce(haystack.slice(), needle)
+}
+fn splitOnce(haystack StrSlice, needle StrSlice) Opt<SplitResult> {
+  maybeOffsetAfterBegin = find(haystack, needle);
+  = if (maybeOffsetAfterBegin.isEmpty()) {
+      r Opt<SplitResult> = None<SplitResult>();
+      = r;
+    } else {
+      offsetAfterBegin = maybeOffsetAfterBegin.get();
+      r Opt<SplitResult> =
+          Some<SplitResult>(
+              SplitResult(
+                  newStrSlice(
+                      haystack.string,
+                      haystack.begin,
+                      offsetAfterBegin.begin),
+                  newStrSlice(
+                      haystack.string,
+                      offsetAfterBegin.begin + needle.len(),
+                      haystack.end)));
+      = r;
+    }
+}
+
+
+fn split(haystack str, needle str) List<StrSlice> {
+  split(haystack.slice(), needle.slice())
+}
+fn split(haystack str, needle StrSlice) List<StrSlice> {
+  split(haystack.slice(), needle)
+}
+fn split(haystack StrSlice, needle str) List<StrSlice> {
+  split(haystack, needle.slice())
+}
+fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
+  result = List<StrSlice>();
+
+  while (true) {
+    maybeFirstAndRest = haystack.splitOnce(needle);
+    if (maybeFirstAndRest.isEmpty()) {
+      if (haystack.len() > 0) {
+        add<StrSlice>(&!result, haystack);
+      }
+      ret result;
+    }
+    (first, rest) = maybeFirstAndRest.get();
+    add(&!result, first);
+    mut haystack = rest;
+  }
+
+  panic("unreachable");
+}
