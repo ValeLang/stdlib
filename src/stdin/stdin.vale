@@ -1,0 +1,2 @@
+
+fn stdinReadInt() int extern;

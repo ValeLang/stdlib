@@ -8,10 +8,13 @@ ValeStr* ValeStrNew(int64_t length);
 long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
     long i = 0;
     for(i = 0; i < bytes; i++){
+        // feof comes after fgetc but before its result is used, taken from example at
+        // https://www.tutorialspoint.com/c_standard_library/c_function_fgetc.htm
+        int c = fgetc(stream);
         if(feof(stream)) {
             break;
         }
-        buffer[i] = fgetc(stream);
+        buffer[i] = c;
     }
     return i;
 }
@@ -73,7 +76,11 @@ ValeStr* read_child_stderr(ValeInt cmd, long bytes) {
 }
 
 void write_child_stdin(ValeInt cmd, ValeStr* contents) {
-    
+    FILE* stdin_handle = subprocess_stdin((struct subprocess_s*)cmd); 
+    for (int i = 0; i < contents->length; i++) {
+        fputc(contents->chars[i], stdin_handle);
+    }
+    fclose(stdin_handle);
 }
 
 long join_subprocess(long handle){

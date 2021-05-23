@@ -103,7 +103,9 @@ ValeStr* readFileAsString(ValeStr* filenameVStr) {
   if (1 != fread(buffer, lSize, sizeof(char), fp)) {
     fclose(fp);
     free(buffer);
-    fputs("Failed to read file", stderr);
+    fputs("Failed to read file: ", stderr);
+    fputs(filename, stderr);
+    fputs("\n", stderr);
     exit(1);
   }
 
