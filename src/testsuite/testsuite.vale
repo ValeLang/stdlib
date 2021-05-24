@@ -1,0 +1,34 @@
+
+struct TestSuite {
+  filter str;
+  num_tests_ran! int;
+  num_tests_skipped! int;
+}
+
+fn TestSuite() TestSuite {
+  TestSuite("", 0, 0)
+}
+
+fn finish(suite TestSuite) {
+  println("Passed all " + suite.num_tests_ran + " tests!");
+  if (suite.num_tests_skipped > 0) {
+    println("Skipped " + suite.num_tests_skipped + " tests.");
+  }
+}
+
+fn test<F>(suite &!TestSuite, name str, lambda F) {
+  if (name.has(suite.filter)) {
+    set suite.num_tests_ran = suite.num_tests_ran + 1;
+    println("Test: " + name);
+    lambda();
+    println("Successful!");
+  } else {
+    set suite.num_tests_skipped = suite.num_tests_skipped + 1;
+  }
+}
+
+fn should_equal<T>(a T, b T) {
+  if (not (a == b)) {
+    panic("Check failed! Expected:\n{a}\nto equal:\b{b}");
+  }
+}
