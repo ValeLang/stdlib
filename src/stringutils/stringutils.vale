@@ -19,10 +19,10 @@ fn endsWith(a StrSlice, b StrSlice) bool {
 }
 
 
-fn splice(original str, at int, removeNumChars int, insert str) {
+fn splice(original str, at int, removeNumChars int, insert str) str {
   before = original.slice(0, at).str();
   after = original.slice(at + removeNumChars, original.len()).str();
-  = before + insert + after;
+  ret before + insert + after;
 }
 
 
