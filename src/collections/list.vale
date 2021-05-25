@@ -1,4 +1,4 @@
-import stdlib.src.*;
+import stdlib.*;
 
 struct List<E> rules(E Ref) {
   array! Array<mut, Opt<E>>;
