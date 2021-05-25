@@ -1,3 +1,5 @@
+import stdlib.stringutils.*;
+import stdlib.path.*;
 //export List<str> as StrTest;
 export Array<imm, str> as StrChain;
 export Array<mut, str> as MutStrChain;
