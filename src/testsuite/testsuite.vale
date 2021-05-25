@@ -29,6 +29,6 @@ fn test<F>(suite &!TestSuite, name str, lambda F) {
 
 fn should_equal<T>(a T, b T) {
   if (not (a == b)) {
-    panic("Check failed! Expected:\n{a}\nto equal:\b{b}");
+    panic("Check failed! Expected:\n{a}\nto equal:\n{b}");
   }
 }

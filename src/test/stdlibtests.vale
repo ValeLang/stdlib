@@ -1,0 +1,10 @@
+import stdlib.src.stringutils.*;
+import stdlib.src.testsuite.*;
+
+fn main() export {
+  suite = TestSuite();
+  suite!.test("Concat float and string", {
+    vassert(len("moo" + 16.5) >= len("moo16"));
+  });
+  suite^.finish();
+}
