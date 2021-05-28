@@ -1,10 +1,10 @@
-import stdlib.src.stringutils.*;
-import stdlib.src.testsuite.*;
+import stdlib.stringutils.*;
+import stdlib.testsuite.*;
 
 fn main() export {
   suite = TestSuite();
   suite!.test("splice", {
     splice("moo", 1, 1, "lol") should_equal "mlolo";
   });
-  suite^.finish();
+  (suite).finish();
 }

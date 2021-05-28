@@ -58,7 +58,7 @@ fn each<E, F>(list &List<E>, func F) void {
   i! = 0;
   l = len(&list);
   while (i < l) {
-    func(list.get(i));
+    func!(list.get(i));
     mut i = i + 1;
   }
 }
@@ -67,7 +67,7 @@ fn each<E, F>(list &!List<E>, func F) void {
   i! = 0;
   l = len(&list);
   while (i < l) {
-    func(list.get(i));
+    func!(list.get(i));
     mut i = i + 1;
   }
 }
@@ -76,7 +76,7 @@ fn enumerate<E, F>(self &List<E>, func F) void {
     i! = 0;
     l = self.len();
     while (i < l) {
-         func(self.get(i), i);
+         func!(self.get(i), i);
          mut i = i + 1;
     }
 }
@@ -111,7 +111,7 @@ fn remove<E>(list &!List<E>, removeAtIndex int) E {
 
   mut list.size = list.size - 1;
 
-  ret temp^.get();
+  ret (temp).get();
 }
 
 

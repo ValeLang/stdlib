@@ -1,9 +1,9 @@
-#include "StrChain.h"
 #include "subprocess.h"
-#include<stdlib.h>
-#include<stdio.h>
-#include<string.h>
-ValeStr* ValeStrNew(int64_t length);
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "ValeBuiltins.h"
+#include "StrChain.h"
 
 long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
     long i = 0;

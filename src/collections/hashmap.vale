@@ -186,7 +186,7 @@ fn innerRemove<K, V, H, E>(
   equator E,
   key K)
 int {
-  hash int = (&hasher)(key);
+  hash int = (hasher)(key);
   startIndex = abs(hash mod table.len());
   index? = findIndexOfKey(&table, equator, startIndex, key);
   index = index?.get();
@@ -206,7 +206,7 @@ void {
     neighborIndex = (originalIndex + i) mod len(&map.table);
     neighbor? = (mut map.table[neighborIndex] = None<HashMapNode<K, V>>());
     if (not neighbor?.isEmpty()) {
-      (neighborKey, neighborValue) = neighbor?^.get();
+      (neighborKey, neighborValue) = (neighbor?).get();
       addNodeToTable(map.table, map.hasher, HashMapNode<K, V>(neighborKey, neighborValue));
     } else {
       drop(neighbor?);
