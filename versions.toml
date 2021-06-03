@@ -1,0 +1,4 @@
+[[versions]]
+version = "0.1.0"
+git = "https://github.com/ValeLang/stdlib"
+hash = "e099d65c1cf95fc0732e8d8cae7402a6e8688cf1"
