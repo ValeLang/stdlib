@@ -180,7 +180,7 @@ fn verify<N>(command_list &CommandList<N>, command_str str) bool {
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_all_flags<N>(flag_list &[N * Flag], args Array<imm, str>) ParsedFlagList {
+fn parse_all_flags<N>(flag_list &[<_, _> N * Flag], args Array<imm, final, str>) ParsedFlagList {
     parsed_flag_list = ParsedFlagList(List<ParsedFlag>(), List<str>());
 
     i! = 1;
@@ -230,7 +230,7 @@ fn parse_all_flags<N>(flag_list &[N * Flag], args Array<imm, str>) ParsedFlagLis
 /// 
 /// # returns:
 ///   1. A list of parsed and invalid flags.
-fn parse_flag(args Array<imm, str>, flag_type int, i! int) [ParsedFlag, int] {
+fn parse_flag(args Array<imm, final, str>, flag_type int, i! int) [ParsedFlag, int] {
     name = args[i];
 
     // Curse Verdagon and his lack of matches! lol

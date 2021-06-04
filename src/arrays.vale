@@ -1,6 +1,6 @@
 
-fn each<M, N, T, F>(arr A, func F) void
-rules(A Ref(_, _, [<M> N * T])) {
+fn each<A, F>(arr A, func F) void
+rules(A Ref(_, _, [<_, _> _ * _])) {
   i! = 0;
   l = len(&arr);
   while (i < l) {
@@ -9,8 +9,8 @@ rules(A Ref(_, _, [<M> N * T])) {
   }
 }
 
-fn eachI<M, N, T, F>(arr A, func F) void
-rules(A Ref(_, _, [<M> N * T])) {
+fn eachI<A, F>(arr A, func F) void
+rules(A Ref(_, _, [<_, _> _ * _])) {
   i! = 0;
   l = len(&arr);
   while (i < l) {
@@ -19,8 +19,8 @@ rules(A Ref(_, _, [<M> N * T])) {
   }
 }
 
-fn each<M, T, F>(arr A, func F) void
-rules(A Ref(_, _, Array<M, T>)) {
+fn each<A, F>(arr A, func F) void
+rules(A Ref(_, _, Array<_, _, _>)) {
   i! = 0;
   l = len(&arr);
   while (i < l) {
@@ -29,8 +29,8 @@ rules(A Ref(_, _, Array<M, T>)) {
   }
 }
 
-fn eachI<F>(arr A, func F) void
-rules(A Ref(_, _, Array<_, _>)) {
+fn eachI<A, F>(arr A, func F) void
+rules(A Ref(_, _, Array<_, _, _>)) {
   i! = 0;
   l = len(&arr);
   while (i < l) {

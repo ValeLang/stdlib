@@ -16,7 +16,7 @@ fn to_unix_path(path &Path) str {
 fn is_dir(value str) int extern;
 fn is_file(value str) int extern;
 fn exists(path str) int extern;
-fn iterdir(path str) Array<imm,str> extern;
+fn iterdir(path str) Array<imm,final,str> extern;
 fn makeDirectory(path str) int extern;
 
 fn readFileAsString(filenameVStr str) str extern;

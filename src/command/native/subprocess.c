@@ -24,7 +24,7 @@ long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
    https://github.com/sheredom/subprocess.h
 */
 
-ValeStr* get_env_var(ValeStr* var_name) {
+ValeStr* stdlib_get_env_var(ValeStr* var_name) {
     const char* env_var = getenv((const char*)&var_name->chars);
     unsigned long length = strlen(env_var);
     ValeStr* out = malloc(sizeof(ValeStr) + length + 1);
@@ -33,7 +33,7 @@ ValeStr* get_env_var(ValeStr* var_name) {
     return out;
 }
 
-char** vale_to_char_arr(StrChain* chains) {
+char** stdlib_vale_to_char_arr(stdlib_StrChain* chains) {
     char** args = malloc(chains->length*sizeof(char*)+sizeof(char*));
     for(unsigned long i = 0; i < chains->length; i++) {
         args[i] = &chains->elements[i]->chars[0];
@@ -42,9 +42,9 @@ char** vale_to_char_arr(StrChain* chains) {
     return args; 
 }
 
-ValeInt launch_command(StrChain* chain) {
+ValeInt stdlib_launch_command(stdlib_StrChain* chain) {
     ValeInt out = 0;
-    const char** args = (const char**)vale_to_char_arr(chain);
+    const char** args = (const char**)stdlib_vale_to_char_arr(chain);
     struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
     if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
         perror("command creation failed");
@@ -55,7 +55,7 @@ ValeInt launch_command(StrChain* chain) {
     return out;
 }
 
-ValeStr* read_child_stdout(ValeInt cmd, long bytes) {
+ValeStr* stdlib_read_child_stdout(ValeInt cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1); 
     FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
@@ -65,7 +65,7 @@ ValeStr* read_child_stdout(ValeInt cmd, long bytes) {
     return out;
 }
 
-ValeStr* read_child_stderr(ValeInt cmd, long bytes) {
+ValeStr* stdlib_read_child_stderr(ValeInt cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1);
     FILE* stderr_handle = subprocess_stderr((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stderr_handle);
@@ -75,7 +75,7 @@ ValeStr* read_child_stderr(ValeInt cmd, long bytes) {
     return out;
 }
 
-void write_child_stdin(ValeInt cmd, ValeStr* contents) {
+void stdlib_write_child_stdin(ValeInt cmd, ValeStr* contents) {
     FILE* stdin_handle = subprocess_stdin((struct subprocess_s*)cmd); 
     for (int i = 0; i < contents->length; i++) {
         fputc(contents->chars[i], stdin_handle);
@@ -83,7 +83,7 @@ void write_child_stdin(ValeInt cmd, ValeStr* contents) {
     fclose(stdin_handle);
 }
 
-long join_subprocess(long handle){
+long stdlib_join_subprocess(long handle){
     int result;
     subprocess_join((struct subprocess_s*)handle, &result);
     return result;  

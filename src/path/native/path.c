@@ -8,7 +8,7 @@
 #include<errno.h>
 #include "StrChain.h"
 
-long exists(ValeStr* path);
+long stdlib_exists(ValeStr* path);
 ValeStr* ValeStrNew(int64_t length);
 
 long vale_is_file_internal(ValeStr* path) {
@@ -17,22 +17,22 @@ long vale_is_file_internal(ValeStr* path) {
     return S_ISREG(path_stat.st_mode);    
 }
 
-long is_file(ValeStr* path) {
-    return exists(path) && vale_is_file_internal(path);
+long stdlib_is_file(ValeStr* path) {
+    return stdlib_exists(path) && vale_is_file_internal(path);
 }
 
-long is_dir(ValeStr* path) {
-    return !is_file(path);
+long stdlib_is_dir(ValeStr* path) {
+    return !stdlib_is_file(path);
 }
 
-long makeDirectory(ValeStr* path) {
-    if(!exists(path)) {
+long stdlib_makeDirectory(ValeStr* path) {
+    if(!stdlib_exists(path)) {
         return mkdir(path->chars, 0700);
     }
     return 1;
 }
 
-long exists(ValeStr* path) {
+long stdlib_exists(ValeStr* path) {
     if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
         long retval = dir ? 1 : 0;
@@ -46,9 +46,9 @@ long exists(ValeStr* path) {
     }
 }
 
-StrChain* iterdir(ValeStr* path) {
+stdlib_StrChain* stdlib_iterdir(ValeStr* path) {
     vale_queue* entries = vale_queue_empty(); 
-    if(is_file(path)) {
+    if(stdlib_is_file(path)) {
         perror("is a file not a path");
         exit(0);
     }
@@ -65,12 +65,12 @@ StrChain* iterdir(ValeStr* path) {
         closedir(d); 
     }else{
         printf("cannot open directory: %s\n", path->chars);
-        StrChain* retval = malloc(sizeof(long));
+        stdlib_StrChain* retval = malloc(sizeof(long));
         retval->length = 0;
         return retval;
     }
     long length = entries->length;
-    StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
+    stdlib_StrChain* retval = (stdlib_StrChain*)vale_queue_to_array(entries); 
     vale_queue_destroy(entries);
     return retval;
 }
@@ -78,7 +78,7 @@ StrChain* iterdir(ValeStr* path) {
 #include <assert.h>
 
 // Aborts on failure, beware!
-ValeStr* readFileAsString(ValeStr* filenameVStr) {
+ValeStr* stdlib_readFileAsString(ValeStr* filenameVStr) {
   char* filename = filenameVStr->chars;
 
   FILE *fp = fopen(filename, "rb");
@@ -118,7 +118,7 @@ ValeStr* readFileAsString(ValeStr* filenameVStr) {
   return result;
 }
 
-void writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
+void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   char *filename = filenameVStr->chars;
   char* contents = contentsVStr->chars;
   int contentsLen = contentsVStr->length;

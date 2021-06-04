@@ -1,7 +1,7 @@
 struct HashSet<K, H, E> {
   hasher H;
   equator E;
-  table! Array<mut, Opt<K>>;
+  table! Array<mut, vary, Opt<K>>;
   size! int;
 }
 
@@ -13,7 +13,7 @@ fn HashSet<K, H, E>(hasher H, equator E, capacity int) HashSet<K, H, E> {
   HashSet<K>(
       hasher,
       equator,
-      [*](
+      [vary *](
         capacity,
         &!IFunction1<mut, int, Opt<K>>((index){
           opt Opt<K> = None<K>();
@@ -36,8 +36,8 @@ HashSet<K, H, E> {
   ret this;
 }
 
-fn HashSet<K, H, E, M>(
-    valuesArray &Array<M, K>,
+fn HashSet<K, H, E>(
+    valuesArray &Array<_, _, K>,
     hasher H,
     equator E)
 HashSet<K, H, E> {
@@ -63,7 +63,7 @@ fn add<K, H, E>(self &!HashSet<K, H, E>, key K) void {
         if (self.table.len() == 0) { 2 }
         else { self.table.len() * 2 };
     newTable =
-        [*](
+        [vary *](
             newSize,
             &!IFunction1<mut, int, Opt<K>>((index){
               opt Opt<K> = None<K>();
@@ -87,7 +87,7 @@ fn add<K, H, E>(self &!HashSet<K, H, E>, key K) void {
   mut self.size = self.size + 1;
 }
 
-fn addNodeToHashSetTable<K, H>(table &!Array<mut, Opt<K>>, hasher H, key K) {
+fn addNodeToHashSetTable<K, H>(table &!Array<mut, vary, Opt<K>>, hasher H, key K) {
   hash int = hasher!(key);
   startIndex = abs(hash mod table.len());
   index = findEmptyIndexInHashSetForKey(&table, startIndex, key);
@@ -96,7 +96,7 @@ fn addNodeToHashSetTable<K, H>(table &!Array<mut, Opt<K>>, hasher H, key K) {
   mut table[index] = opt;
 }
 
-fn findEmptyIndexInHashSetForKey<K>(table &Array<mut, Opt<K>>, startIndex int, key K) int {
+fn findEmptyIndexInHashSetForKey<K>(table &Array<mut, vary, Opt<K>>, startIndex int, key K) int {
   i! = 0;
   while (i < table.len()) {
     index = (startIndex + i) mod table.len();
@@ -110,7 +110,7 @@ fn findEmptyIndexInHashSetForKey<K>(table &Array<mut, Opt<K>>, startIndex int, k
   = panic("findEmptyIndexInHashSetForKey went past end of table!");
 }
 
-fn findIndexOfKey<K, E>(table &Array<mut, Opt<K>>, equator E, startIndex int, key K) Opt<int> {
+fn findIndexOfKey<K, E>(table &Array<mut, vary, Opt<K>>, equator E, startIndex int, key K) Opt<int> {
   i! = 0;
   while (i < table.len()) {
     index = (startIndex + i) mod table.len();
@@ -148,7 +148,7 @@ fn has<K, H, E>(self &HashSet<K, H, E>, key K) bool {
   not(self.get(key).isEmpty())
 }
 
-fn toArray<K, H, E>(self &HashSet<K, H, E>) Array<imm, K> {
+fn toArray<K, H, E>(self &HashSet<K, H, E>) Array<imm, final, K> {
   list = List<K>();
   index! = 0;
   while (index < self.table.len()) {
@@ -162,7 +162,7 @@ fn toArray<K, H, E>(self &HashSet<K, H, E>) Array<imm, K> {
 }
 
 fn innerRemove<K, H, E>(
-  table &!Array<mut, Opt<K>>,
+  table &!Array<mut, vary, Opt<K>>,
   hasher H,
   equator E,
   key K)
