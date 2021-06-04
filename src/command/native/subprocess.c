@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "ValeBuiltins.h"
-#include "StrChain.h"
+#include "stdlib/StrChain.h"
 
 long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
     long i = 0;

@@ -6,7 +6,7 @@
 #include<unistd.h>
 #include<dirent.h>
 #include<errno.h>
-#include "StrChain.h"
+#include "stdlib/StrChain.h"
 
 long stdlib_exists(ValeStr* path);
 ValeStr* ValeStrNew(int64_t length);
