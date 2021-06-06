@@ -130,3 +130,21 @@ rules(T Ref, Prot("__call", (&F, E), T)) {
   list.each({ result!.add((func)(_)); });
   ret result;
 }
+
+fn print<T>(list &List<T>) {
+  print("List(");
+  first! = true;
+  each (&list) {
+    if (not first) {
+      print(", ");
+    }
+    mut first = false;
+    print(_);
+  }
+  print(")");
+}
+
+fn println<T>(list &List<T>) {
+  print(list);
+  println("");
+}

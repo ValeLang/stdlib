@@ -55,7 +55,7 @@ ValeInt stdlib_launch_command(stdlib_StrChain* chain) {
     return out;
 }
 
-ValeStr* stdlib_read_child_stdout(ValeInt cmd, long bytes) {
+ValeStr* stdlib_read_child_stdout(int64_t cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1); 
     FILE* stdout_handle = subprocess_stdout((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stdout_handle);
@@ -65,7 +65,7 @@ ValeStr* stdlib_read_child_stdout(ValeInt cmd, long bytes) {
     return out;
 }
 
-ValeStr* stdlib_read_child_stderr(ValeInt cmd, long bytes) {
+ValeStr* stdlib_read_child_stderr(int64_t cmd, long bytes) {
     ValeStr* out = ValeStrNew(bytes+1);
     FILE* stderr_handle = subprocess_stderr((struct subprocess_s*)cmd); 
     long read_len = read_into_buffer(out->chars, bytes, stderr_handle);
@@ -75,7 +75,7 @@ ValeStr* stdlib_read_child_stderr(ValeInt cmd, long bytes) {
     return out;
 }
 
-void stdlib_write_child_stdin(ValeInt cmd, ValeStr* contents) {
+void stdlib_write_child_stdin(int64_t cmd, ValeStr* contents) {
     FILE* stdin_handle = subprocess_stdin((struct subprocess_s*)cmd); 
     for (int i = 0; i < contents->length; i++) {
         fputc(contents->chars[i], stdin_handle);

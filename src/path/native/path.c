@@ -9,7 +9,6 @@
 #include "stdlib/StrChain.h"
 
 long stdlib_exists(ValeStr* path);
-ValeStr* ValeStrNew(int64_t length);
 
 long vale_is_file_internal(ValeStr* path) {
     struct stat path_stat;
@@ -115,6 +114,7 @@ ValeStr* stdlib_readFileAsString(ValeStr* filenameVStr) {
   fclose(fp);
   free(buffer);
 
+  ValeReleaseMessage(filenameVStr);
   return result;
 }
 
@@ -138,6 +138,8 @@ void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   }
 
   fclose(fp);
+  ValeReleaseMessage(filenameVStr);
+  ValeReleaseMessage(contentsVStr);
 }
 
 
