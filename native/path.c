@@ -8,31 +8,43 @@
 #include<errno.h>
 #include "StrChain.h"
 
-long exists(ValeStr* path);
+long exists_internal(ValeStr* path);
 ValeStr* ValeStrNew(int64_t length);
+
+long exists(ValeStr* path){
+  long result = exists_internal(path);
+  ValeReleaseMessage(path);
+  return result;
+}
 
 long vale_is_file_internal(ValeStr* path) {
     struct stat path_stat;
     stat(path->chars, &path_stat);
-    return S_ISREG(path_stat.st_mode);    
+    return S_ISREG(path_stat.st_mode);
 }
 
 long is_file(ValeStr* path) {
-    return exists(path) && vale_is_file_internal(path);
+    long result = exists_internal(path) && vale_is_file_internal(path);
+    ValeReleaseMessage(path);
+    return result;
 }
 
 long is_dir(ValeStr* path) {
-    return !is_file(path);
+    long result = !vale_is_file_internal(path);
+    ValeReleaseMessage(path);
+    return result;
 }
 
 long makeDirectory(ValeStr* path) {
-    if(!exists(path)) {
+    if(!exists_internal(path)) {
+        ValeReleaseMessage(path);
         return mkdir(path->chars, 0700);
     }
+    ValeReleaseMessage(path);
     return 1;
 }
 
-long exists(ValeStr* path) {
+long exists_internal(ValeStr* path) {
     if(!vale_is_file_internal(path)) {
         DIR* dir = opendir(path->chars);
         long retval = dir ? 1 : 0;
@@ -48,7 +60,7 @@ long exists(ValeStr* path) {
 
 StrChain* iterdir(ValeStr* path) {
     vale_queue* entries = vale_queue_empty(); 
-    if(is_file(path)) {
+    if(vale_is_file_internal(path)) {
         perror("is a file not a path");
         exit(0);
     }
@@ -72,6 +84,7 @@ StrChain* iterdir(ValeStr* path) {
     long length = entries->length;
     StrChain* retval = (StrChain*)vale_queue_to_array(entries); 
     vale_queue_destroy(entries);
+    ValeReleaseMessage(path);
     return retval;
 }
 #include <stdint.h>
@@ -114,7 +127,7 @@ ValeStr* readFileAsString(ValeStr* filenameVStr) {
 
   fclose(fp);
   free(buffer);
-
+  ValeReleaseMessage(filenameVStr);
   return result;
 }
 
@@ -138,6 +151,8 @@ void writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   }
 
   fclose(fp);
+  ValeReleaseMessage(filenameVStr);
+  ValeReleaseMessage(contentsVStr);
 }
 
 

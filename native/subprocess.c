@@ -30,6 +30,7 @@ ValeStr* get_env_var(ValeStr* var_name) {
     ValeStr* out = malloc(sizeof(ValeStr) + length + 1);
     out->length = length; 
     strcpy(out->chars, env_var);
+    ValeReleaseMessage(var_name);
     return out;
 }
 
@@ -51,7 +52,10 @@ ValeInt launch_command(StrChain* chain) {
     }
     out = (unsigned long)subproc;
     free(args);
-    ValeReleaseMessage(chain); 
+    for(long i = 0; i < chain->length; i++){
+        //ValeReleaseMessage(&chain->elements[i]);
+    }
+    ValeReleaseMessage(chain);
     return out;
 }
 
@@ -81,6 +85,7 @@ void write_child_stdin(ValeInt cmd, ValeStr* contents) {
         fputc(contents->chars[i], stdin_handle);
     }
     fclose(stdin_handle);
+    ValeReleaseMessage(contents);
 }
 
 long join_subprocess(long handle){

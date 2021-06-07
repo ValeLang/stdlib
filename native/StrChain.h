@@ -12,6 +12,8 @@ typedef struct StrChain {
   unsigned long length;
   ValeStr* elements[0];
 } StrChain;
+#ifndef ValeReleaseMessage
 #define ValeReleaseMessage(msg) (free(*((void**)(msg) - 2)))
+#endif
 
 #endif
