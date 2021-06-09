@@ -42,8 +42,8 @@ char** stdlib_vale_to_char_arr(stdlib_StrChain* chains) {
     return args; 
 }
 
-ValeInt stdlib_launch_command(stdlib_StrChain* chain) {
-    ValeInt out = 0;
+int64_t stdlib_launch_command(stdlib_StrChain* chain) {
+    int64_t out = 0;
     const char** args = (const char**)stdlib_vale_to_char_arr(chain);
     struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
     if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){

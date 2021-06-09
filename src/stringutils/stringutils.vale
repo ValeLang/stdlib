@@ -15,6 +15,9 @@ fn endsWith(a str, b str) bool { endsWith(a.slice(), b.slice()) }
 fn endsWith(a str, b StrSlice) bool { endsWith(a.slice(), b) }
 fn endsWith(a StrSlice, b str) bool { endsWith(a, b.slice()) }
 fn endsWith(a StrSlice, b StrSlice) bool {
+  if (b.len() > a.len()) {
+    ret false;
+  }
   = a.slice(a.len() - b.len(), a.len()) == b;
 }
 
@@ -176,20 +179,72 @@ fn split(haystack StrSlice, needle str) List<StrSlice> {
   split(haystack, needle.slice())
 }
 fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
-  result = List<StrSlice>();
+  // We want to maintain the invariant that
+  //   something.split(needle).len() == something.count(needle).len() + 1
+  // (Arbitrary decision, but seems to make sense)
+  // This also means that result_parts will always have at least one entry in it.
 
-  while (true) {
-    maybeFirstAndRest = haystack.splitOnce(needle);
-    if (maybeFirstAndRest.isEmpty()) {
-      if (haystack.len() > 0) {
-        add<StrSlice>(&!result, haystack);
-      }
-      ret result;
-    }
-    (first, rest) = maybeFirstAndRest.get();
-    add(&!result, first);
-    mut haystack = rest;
+  result_parts = List<StrSlice>();
+
+  if (needle == "") {
+    result_parts!.add("".slice());
+    ret result_parts;
   }
 
-  panic("unreachable");
+  // For example, if we do "aabbb".split("a"), we want to take the two "a"s off
+  // the start, and add two ""s to the result_parts.
+  while (haystack.startsWith(needle)) {
+    set haystack = haystack.slice(needle.len(), haystack.len());
+    result_parts!.add("".slice());
+  }
+
+  // Similarly, if we do "bbbaa".split("a"), we want to take the "a"s off
+  // the end.
+  // But, we don't want to add them to the result_parts yet, we'll do that after
+  // we get the stuff before it.
+  // We'll just remember for now how many of them are at the end, and
+  // shorten them off haystack.
+  num_at_end = 0;
+  while (haystack.endsWith(needle)) {
+    set haystack = haystack.slice(0, haystack.len() - needle.len());
+    set num_at_end = num_at_end + 1;
+  }
+
+  // For example, if we do "aaa".split("a"), the above start slicing put
+  // 3 ""s into result_parts, and left us with a "". We still want another ""
+  // to maintain the invariant, so we just add another one here.
+  if (haystack == "") {
+    result_parts!.add("".slice());
+  } else {
+    // If we get here, no needles are at the beginning or end, and we still
+    // have a haystack.
+    // For example, needle "a" and haystack "babab".
+    while (haystack != "") {
+      before_and_after_next_needle = haystack.splitOnce(needle);
+      if (not before_and_after_next_needle.isEmpty()) {
+        // There's a needle somewhere in the haystack!
+        (before_next_needle, after_next_needle) = before_and_after_next_needle.get();
+        // If haystack was "bacad" and needle was "a",
+        // before_next_needle will contain "b" and
+        // after_next_needle will contain "cad"
+        result_parts!.add(before_next_needle);
+        set haystack = after_next_needle; // Now haystack is "cad"
+      } else {
+        // If we get here, there's no more needles to be found in the haystack.
+        // However, we know that there's still some hay left, for example "b".
+        vassert(haystack.len() > 0);
+        result_parts!.add(haystack);
+        set haystack = "".slice(); // This will just end the loop
+      }
+    }
+  }
+
+  // Add the ""s we found at the end of the haystack when we began.
+  i = 0;
+  while (i < num_at_end) {
+    result_parts!.add("".slice());
+    set i = i + 1;
+  }
+
+  ret result_parts;
 }

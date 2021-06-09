@@ -6,5 +6,68 @@ fn main() export {
   suite!.test("splice", {
     splice("moo", 1, 1, "lol") should_equal "mlolo";
   });
+
+  suite!.test("splitOnce 1", {
+    maybeFirstAndRest = "".splitOnce(" ");
+    maybeFirstAndRest.isEmpty() should_equal true;
+  });
+  suite!.test("splitOnce 2", {
+    maybeFirstAndRest = "bork".splitOnce(" ");
+    maybeFirstAndRest.isEmpty() should_equal true;
+  });
+  suite!.test("splitOnce 3", {
+    maybeFirstAndRest = " bork".splitOnce(" ");
+    maybeFirstAndRest.isEmpty() should_equal false;
+    (first, rest) = maybeFirstAndRest.get();
+    first should_equal "".slice();
+    rest should_equal "bork".slice();
+  });
+  suite!.test("splitOnce 4", {
+    maybeFirstAndRest = "bork ".splitOnce(" ");
+    maybeFirstAndRest.isEmpty() should_equal false;
+    (first, rest) = maybeFirstAndRest.get();
+    first should_equal "bork".slice();
+    rest should_equal "".slice();
+  });
+  suite!.test("split 1", {
+    splat = "".split(" ");
+    splat.len() should_equal 1;
+    splat.get(0) should_equal "".slice();
+  });
+  suite!.test("split 2", {
+    splat = "bork".split(" ");
+    splat.len() should_equal 1;
+    splat.get(0) should_equal "bork".slice();
+  });
+  suite!.test("split 3", {
+    splat = " bork".split(" ");
+    splat.len() should_equal 2;
+    splat.get(0) should_equal "".slice();
+    splat.get(1) should_equal "bork".slice();
+  });
+  suite!.test("split 4", {
+    splat = "bork ".split(" ");
+    splat.len() should_equal 2;
+    splat.get(0) should_equal "bork".slice();
+    splat.get(1) should_equal "".slice();
+  });
+  suite!.test("split 5", {
+    splat = "hello my name is evan".split(" ");
+    splat.len() should_equal 5;
+    splat.get(0) should_equal "hello".slice();
+    splat.get(1) should_equal "my".slice();
+    splat.get(2) should_equal "name".slice();
+    splat.get(3) should_equal "is".slice();
+    splat.get(4) should_equal "evan".slice();
+  });
+  suite!.test("split 6", {
+    splat = "    ".split(" ");
+    splat.len() should_equal 5;
+    splat.get(0) should_equal "".slice();
+    splat.get(1) should_equal "".slice();
+    splat.get(2) should_equal "".slice();
+    splat.get(3) should_equal "".slice();
+    splat.get(4) should_equal "".slice();
+  });
   (suite).finish();
 }
