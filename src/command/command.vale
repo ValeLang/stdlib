@@ -5,7 +5,7 @@ export Array<imm, final, str> as StrChain;
 export Array<mut, vary, str> as MutStrChain;
 
 struct Subprocess {
-    handle int;
+    handle i64;
 }
 
 fn spawn(command str, args &List<StrSlice>) Subprocess {
@@ -46,7 +46,7 @@ fn join(self &Subprocess, read_len int) ExecResult {
     ret ExecResult(resultCode, stdout, stderr);
 }
 
-fn create_process(cmd str, args &List<str>, paths! List<str>) int {
+fn create_process(cmd str, args &List<str>, paths! List<str>) i64 {
     outcmd! = "hello";   
     if (exists(cmd) != 1) {
        each (&paths) (path){
@@ -77,7 +77,7 @@ fn create_process(cmd str, args &List<str>, paths! List<str>) int {
     ret command;
 }
 
-fn from_path(cmd str, args &List<str>) int {
+fn from_path(cmd str, args &List<str>) i64 {
     path! = List<str>();
     each (&get_env_var("PATH").split(":")) (path_val){
         path!.add(str(path_val));
@@ -86,8 +86,8 @@ fn from_path(cmd str, args &List<str>) int {
 }
 
 fn get_env_var(name str) str extern;
-fn launch_command(args Array<imm,final,str>) int extern;
-fn write_child_stdin(cmd int, s str) extern;
-fn read_child_stdout(cmd int, len int) str extern;
-fn read_child_stderr(cmd int, len int) str extern;
-fn join_subprocess(cmd int) int extern;
+fn launch_command(args Array<imm,final,str>) i64 extern;
+fn write_child_stdin(cmd i64, s str) extern;
+fn read_child_stdout(cmd i64, len int) str extern;
+fn read_child_stderr(cmd i64, len int) str extern;
+fn join_subprocess(cmd i64) int extern;

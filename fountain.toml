@@ -6,14 +6,21 @@ git = "https://github.com/ValeLang/stdlib"
 readme = "README.md"
 platforms = ["native"]
 
-[[imports]]
-platform = "native"
-command = "clang"
-args = ["-c", "native/subprocess.c", "-o", "build/subprocess.o"]
-link_paths = ["build/subprocess.o"]
+[[features]]
+name = "command"
+path = "src/command/"
+requires = ["path"]
 
-[[imports]]
-platform = "native"
+[[features.imports]]
 command = "clang"
-args = ["-c",  "native/path.c", "-o", "build/path.o"]
-link_paths = ["build/path.o"]
+args = ["-c", "src/command/native/subprocess.c", "-I", "build", '-o", "build/subprocess.o"]
+link_args = ["build/subprocess.o"]
+
+[[features]]
+name = "path"
+path = "src/path/"
+
+[[features.imports]]
+command = "clang"
+args = ["-c", "src/path/native/path.c", "-I", "build", "-o", "build/path.o"]
+link_args = ["build/path.o"]
