@@ -29,6 +29,21 @@ fn main() export {
     first should_equal "bork".slice();
     rest should_equal "".slice();
   });
+  suite!.test("split empty 1", {
+    splat = "".split("");
+    splat.len() should_equal 0;
+  });
+  suite!.test("split empty 2", {
+    splat = "a".split("");
+    splat.len() should_equal 1;
+    splat.get(0) should_equal "a".slice();
+  });
+  suite!.test("split empty 3", {
+    splat = "ab".split("");
+    splat.len() should_equal 2;
+    splat.get(0) should_equal "a".slice();
+    splat.get(1) should_equal "b".slice();
+  });
   suite!.test("split 1", {
     splat = "".split(" ");
     splat.len() should_equal 1;

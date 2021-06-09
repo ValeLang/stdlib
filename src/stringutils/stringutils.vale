@@ -179,6 +179,17 @@ fn split(haystack StrSlice, needle str) List<StrSlice> {
   split(haystack, needle.slice())
 }
 fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
+  // Special case first: this means they want to explode a string into
+  // chars, like "abc" into "a", "b", "c"  
+  if (needle == "") {
+    result_parts = List<StrSlice>();
+    while (haystack != "") {
+      result_parts!.add(haystack.slice(0, 1));
+      set haystack = haystack.slice(1, haystack.len());
+    }
+    ret result_parts;
+  }
+
   // We want to maintain the invariant that
   //   something.split(needle).len() == something.count(needle).len() + 1
   // (Arbitrary decision, but seems to make sense)
