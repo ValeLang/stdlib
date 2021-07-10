@@ -84,5 +84,46 @@ fn main() export {
     splat.get(3) should_equal "".slice();
     splat.get(4) should_equal "".slice();
   });
+  suite!.test("parse int None 0", {
+    int("").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 1", {
+    int("abc").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 2", {
+    int("-").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 3", {
+    int(".").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 4", {
+    int("\n").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 5", {
+    int(" ").isEmpty() should_equal true
+  });
+  suite!.test("parse int None 6", {
+    int("0123a").isEmpty() should_equal true
+  });
+  suite!.test("parse int Some 0", {
+    result = int("123");
+    result.isEmpty() should_equal false;
+    result.get() should_equal 123;
+  });
+  suite!.test("parse int Some 1", {
+    result = int("-123");
+    result.isEmpty() should_equal false;
+    result.get() should_equal -123;
+  });
+  suite!.test("parse int Some 2", {
+    result = int("-0");
+    result.isEmpty() should_equal false;
+    result.get() should_equal 0;
+  });
+  suite!.test("parse int Some 3", {
+    result = int("0");
+    result.isEmpty() should_equal false;
+    result.get() should_equal 0;
+  });
   (suite).finish();
 }

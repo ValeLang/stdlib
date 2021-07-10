@@ -105,6 +105,7 @@ fn rtrimnl(s! StrSlice) StrSlice {
 fn trimnl(s str) StrSlice { trimnl(s.slice()) }
 fn trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
 
+fn int(s! str) Opt<int> { int(s.slice()) }
 fn int(s! StrSlice) Opt<int> {
   hasNegative! = false;
   totalSoFar! = 0;
@@ -258,4 +259,44 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
   }
 
   ret result_parts;
+}
+
+
+
+struct StringBuilder {
+  parts List<StrSlice>;
+}
+fn StringBuilder() StringBuilder {
+  StringBuilder(List<StrSlice>())
+}
+fn assembleStr(self &StringBuilder) str {
+  result! = "";
+  each (self.parts) (s){
+    mut result = result + s;
+  }
+  ret result;
+}
+fn print(self &!StringBuilder, b bool) {
+  self!.print(str(b));
+}
+fn print(self &!StringBuilder, s str) {
+  self!.print(s.slice());
+}
+fn print(self &!StringBuilder, s StrSlice) {
+  self.parts!.add(s);
+}
+fn print(self &!StringBuilder, i int) {
+  self!.print(str(i).slice());
+}
+fn println(self &!StringBuilder, s str) {
+  self!.print(s);
+  self!.print("\n");
+}
+fn println(self &!StringBuilder, s StrSlice) {
+  self!.print(s);
+  self!.print("\n");
+}
+fn println(self &!StringBuilder, i int) {
+  self!.print(i);
+  self!.print("\n");
 }

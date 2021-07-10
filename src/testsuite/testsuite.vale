@@ -21,7 +21,6 @@ fn test<F>(suite &!TestSuite, name str, lambda F) {
     set suite.num_tests_ran = suite.num_tests_ran + 1;
     println("Test: " + name);
     lambda();
-    println("Successful!");
   } else {
     set suite.num_tests_skipped = suite.num_tests_skipped + 1;
   }
@@ -31,4 +30,17 @@ fn should_equal<T>(a T, b T) {
   if (not (a == b)) {
     panic("Check failed! Expected:\n{a}\nto equal:\n{b}");
   }
+}
+
+struct SubTestSuite {
+  suite &!TestSuite;
+  prefix str;
+}
+fn test<F>(subSuite &!SubTestSuite, name str, func F) {
+  (subSuite.suite)!.test(subSuite.prefix + " / " + name, func);
+}
+
+fn sub<F>(suite &!TestSuite, prefix str, body F) {
+  subSuite = SubTestSuite(&!suite, prefix);
+  body!(subSuite);
 }

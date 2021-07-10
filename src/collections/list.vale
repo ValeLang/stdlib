@@ -43,8 +43,10 @@ fn set<E>(list &!List<E>, index int, value E) void {
 fn toArray<E>(list &List<E>) Array<mut, final, E> {
   [*](list.len(), &!(i){ list.get(i) })
 }
-fn toVaryArray<E>(list &List<E>) Array<mut, vary, E> {
-  [vary *](list.len(), &!(i){ list.get(i) })
+fn toVaryArray<E>(list List<E>) Array<mut, vary, E> {
+  [vary *](list.len(), &!(i){
+    = (set list.array[i] = None<E>()).get();
+  })
 }
 fn toImmArray<E>(list &List<E>) Array<imm, final, E> {
   [imm *](list.len(), &!(i){ list.get(i) })

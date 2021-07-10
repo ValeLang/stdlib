@@ -1,3 +1,5 @@
+export Array<imm, final, str> as StrArray;
+
 struct Path {
     segments List<str>;
     drive Opt<str>;
