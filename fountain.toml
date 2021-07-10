@@ -3,7 +3,6 @@ version = "0.1.0"
 vale_version = "0.1.1"
 author = "cardinal"
 git = "https://github.com/ValeLang/stdlib"
-readme = "README.md"
 platforms = ["native"]
 
 [[imports]]

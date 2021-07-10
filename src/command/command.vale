@@ -1,8 +1,8 @@
 import stdlib.stringutils.*;
 import stdlib.path.*;
-//export List<str> as StrTest;
-export Array<imm, final, str> as StrChain;
-export Array<mut, vary, str> as MutStrChain;
+
+export Array<imm, final, str> as StrArray;
+export Array<mut, vary, str> as MutStrArray;
 
 struct Subprocess {
     handle i64;

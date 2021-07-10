@@ -1,4 +1,7 @@
+import stdlib.collections.*;
+
 export Array<imm, final, str> as StrArray;
+export Array<mut, vary, str> as MutStrArray;
 
 struct Path {
     segments List<str>;

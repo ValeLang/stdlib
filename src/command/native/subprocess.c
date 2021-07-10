@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "ValeBuiltins.h"
-#include "stdlib/StrChain.h"
+#include "stdlib/StrArray.h"
 
 long read_into_buffer(char* buffer, ValeInt bytes, FILE* stream){
     long i = 0;
@@ -30,10 +30,11 @@ ValeStr* stdlib_get_env_var(ValeStr* var_name) {
     ValeStr* out = malloc(sizeof(ValeStr) + length + 1);
     out->length = length; 
     strcpy(out->chars, env_var);
+    ValeReleaseMessage(var_name);
     return out;
 }
 
-char** stdlib_vale_to_char_arr(stdlib_StrChain* chains) {
+char** stdlib_vale_to_char_arr(stdlib_StrArray* chains) {
     char** args = malloc(chains->length*sizeof(char*)+sizeof(char*));
     for(unsigned long i = 0; i < chains->length; i++) {
         args[i] = &chains->elements[i]->chars[0];
@@ -42,7 +43,7 @@ char** stdlib_vale_to_char_arr(stdlib_StrChain* chains) {
     return args; 
 }
 
-int64_t stdlib_launch_command(stdlib_StrChain* chain) {
+int64_t stdlib_launch_command(stdlib_StrArray* chain) {
     int64_t out = 0;
     const char** args = (const char**)stdlib_vale_to_char_arr(chain);
     struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
@@ -51,7 +52,10 @@ int64_t stdlib_launch_command(stdlib_StrChain* chain) {
     }
     out = (unsigned long)subproc;
     free(args);
-    ValeReleaseMessage(chain); 
+    for(long i = 0; i < chain->length; i++){
+        //ValeReleaseMessage(&chain->elements[i]);
+    }
+    ValeReleaseMessage(chain);
     return out;
 }
 
@@ -81,6 +85,7 @@ void stdlib_write_child_stdin(int64_t cmd, ValeStr* contents) {
         fputc(contents->chars[i], stdin_handle);
     }
     fclose(stdin_handle);
+    ValeReleaseMessage(contents);
 }
 
 long stdlib_join_subprocess(long handle){

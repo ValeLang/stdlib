@@ -58,7 +58,14 @@ vale_basic_array* vale_queue_to_array(vale_queue* q) {
 }
 
 void vale_queue_destroy(vale_queue* q) {
-    while(vale_queue_pop(q) != NULL) {}
+    while(1) {
+        void* ptr = vale_queue_pop(q);
+        if(!ptr){
+            break;
+        }else{
+            free(ptr);
+        }
+    }
     free(q);
 }
 
