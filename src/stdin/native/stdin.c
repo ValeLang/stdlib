@@ -1,8 +1,14 @@
 #include <stdint.h>
 #include <stdio.h>
+#include "stdlib/stdinReadInt.h"
+#include "stdlib/getch.h"
 
-int64_t stdlib_stdinReadInt() {
-  int64_t x = 0;
-  scanf("%lld", &x);
+ValeInt stdlib_stdinReadInt() {
+  ValeInt x = 0;
+  scanf("%ld", &x);
   return x;
+}
+
+ValeInt stdlib_getch() {
+  return getch();
 }

@@ -1,2 +1,4 @@
 
 fn stdinReadInt() int extern;
+
+fn getch() int extern;
