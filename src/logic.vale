@@ -4,3 +4,4 @@ fn !=<T>(a &T, b &T) bool {
 }
 
 fn and(a bool, b bool) bool { a and b }
+fn or(a bool, b bool) bool { a or b }
