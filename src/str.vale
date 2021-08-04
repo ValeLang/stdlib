@@ -6,21 +6,6 @@ struct StrSlice imm {
   // Will soon have a private bytesBegin and bytesEnd
 }
 
-struct StrSliceHasher { }
-fn __call(self &StrSliceHasher, s! StrSlice) int {
-  sum! = 0;
-  while (s != "") {
-    set sum = sum * 1337 + toAscii(s.slice(0, 1));
-    set s = s.slice(1);
-  }
-  ret sum;
-}
-
-struct StrSliceEquator { }
-fn __call(self &StrSliceEquator, a StrSlice, b StrSlice) bool {
-  a == b
-}
-
 fn newStrSlice(string str, begin int, end int) StrSlice {
   vassert(begin >= 0, "slice begin was negative!");
   vassert(end >= 0, "slice end was negative!");

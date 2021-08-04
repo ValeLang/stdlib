@@ -177,7 +177,7 @@ fn values<K, V, H, E>(self &HashMap<K, V, H, E>) Array<mut, vary, V> {
     }
     mut index = index + 1;
   }
-  = list.toVaryArray();
+  = (list).toVaryArray();
 }
 
 fn innerRemove<K, V, H, E>(
@@ -221,3 +221,17 @@ fn __call(this &IntHasher, x int) int { x }
 
 struct IntEquator { }
 fn __call(this &IntEquator, a int, b int) bool { a == b }
+
+
+fn each<F, K, V, H, E>(self &HashMap<K, V, H, E>, func F) {
+  list = List<K>();
+  index! = 0;
+  while (index < self.table.len()) {
+    node? = self.table[index];
+    if (not(node?.isEmpty())) {
+      n = node?.get();
+      (func)(n.key, n.value);
+    }
+    mut index = index + 1;
+  }
+}

@@ -262,6 +262,37 @@ fn split(haystack! StrSlice, needle StrSlice) List<StrSlice> {
 }
 
 
+struct StrSliceHasher { }
+fn __call(self &StrSliceHasher, s! StrSlice) int {
+  sum! = 0;
+  while (s != "") {
+    set sum = sum * 1337 + toAscii(s.slice(0, 1));
+    set s = s.slice(1);
+  }
+  ret sum;
+}
+
+struct StrSliceEquator { }
+fn __call(self &StrSliceEquator, a StrSlice, b StrSlice) bool {
+  a == b
+}
+
+struct StrHasher { }
+fn __call(self &StrHasher, original_str! str) int {
+  s = original_str.slice();
+  sum! = 0;
+  while (s != "") {
+    set sum = sum * 1337 + toAscii(s.slice(0, 1));
+    set s = s.slice(1);
+  }
+  ret sum;
+}
+
+struct StrEquator { }
+fn __call(self &StrEquator, a str, b str) bool {
+  a == b
+}
+
 
 struct StringBuilder {
   parts List<StrSlice>;
