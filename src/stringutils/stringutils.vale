@@ -307,6 +307,7 @@ fn assembleStr(self &StringBuilder) str {
   }
   ret result;
 }
+fn str(self &StringBuilder) str { self.assembleStr() }
 fn print(self &!StringBuilder, b bool) {
   self!.print(str(b));
 }

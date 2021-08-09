@@ -98,7 +98,7 @@ fn <=>(a StrSlice, b StrSlice) int {
 fn +(a str, b StrSlice) str { a.slice() + b }
 fn +(a StrSlice, b str) str { a + b.slice() }
 fn +(a StrSlice, b StrSlice) str {
-  __vaddStr(a.string, a.begin, a.end - a.begin, b.string, b.begin, b.end - b.begin)
+  __vale_addStr(a.string, a.begin, a.end - a.begin, b.string, b.begin, b.end - b.begin)
 }
 
 fn print(s StrSlice) { __vprintStr(s.string, s.begin, s.end - s.begin) }

@@ -3,26 +3,91 @@ import stdlib.collections.*;
 export Array<imm, final, str> as StrArray;
 export Array<mut, vary, str> as MutStrArray;
 
+
 struct Path {
-    segments List<str>;
-    drive Opt<str>;
+  segments List<str>;
+  drive Opt<str>;
 }
 fn to_windows_path(path &Path) str {
-    retval! = "";
-    //if(path.is_relative == false){
-    //    mut retval = drive;
-    //}
-    
+  retval! = "";
+  //if(path.is_relative == false){
+  //  mut retval = drive;
+  //}
+  
 }
 fn to_unix_path(path &Path) str {
-    retval! = "";
-     
+  retval! = "";
+  
 }
-fn is_dir(value str) int extern;
-fn is_file(value str) int extern;
-fn exists(path str) int extern;
+fn is_dir(value str) bool extern;
+fn is_file(value str) bool extern;
+fn exists(path str) bool extern;
 fn iterdir(path str) Array<imm,final,str> extern;
 fn makeDirectory(path str) int extern;
 
 fn readFileAsString(filenameVStr str) str extern;
 fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
+
+fn GetPathSeparator() str extern;
+
+fn str(path &Path) str {
+  sep = GetPathSeparator();
+
+  builder = StringBuilder();
+  first = true;
+  if (not path.drive.isEmpty()) {
+    builder!.print(path.drive.get());
+    set first = false;
+  }
+  path.segments.each((segment){
+    if (not first) {
+      builder!.print(sep);
+    }
+    builder!.print(segment);
+    set first = false;
+  });
+  ret builder.str();
+}
+
+fn exists(path &Path) bool {
+  ret exists(path.str());
+}
+
+fn ==(a &Path, b &Path) bool {
+  if (a.segments.len() != b.segments.len()) {
+    ret false;
+  }
+  i = 0;
+  while (i < a.segments.len()) {
+    if (a.segments.get(i) != b.segments.get(i)) {
+      ret false;
+    }
+    set i = i + 1;
+  }
+
+  if (a.drive.isEmpty() != b.drive.isEmpty()) {
+    ret false;
+  }
+  if (not a.drive.isEmpty()) {
+    if (a.drive.get() != b.drive.get()) {
+      ret false;
+    }
+  }
+  ret true;
+}
+fn !=(a &Path, b &Path) bool { not (a == b) }
+
+fn clone(self &Path) Path {
+  segments = List<str>();
+  self.segments.each((segment){
+    segments.add(segment);
+  });
+  ret Path(segments, self.drive);
+}
+
+fn /(path &Path, segment str) Path {
+  new_path = path.clone();
+  vassert(not segment.has("/"));
+  new_path.segments.add(segment);
+  ret new_path;
+}

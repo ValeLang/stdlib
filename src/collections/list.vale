@@ -148,10 +148,32 @@ fn remove<E>(list &!List<E>, removeAtIndex int) E {
 }
 
 
-fn join(list &List<str>) str {
-  combined! = "";
-  list.each({ mut combined = combined + _; });
-  ret combined;
+fn join(list &List<str>) str { join(list, "") }
+fn join(list &List<str>, joiner str) str {
+  combined! = StringBuilder();
+  first = true;
+  list.each((x){
+    if (not first) {
+      combined!.print(joiner);
+    }
+    combined!.print(x);
+    set first = false;
+  });
+  ret combined.str();
+}
+
+fn join(list &List<StrSlice>) str { join(list, "") }
+fn join(list &List<StrSlice>, joiner str) str {
+  combined! = StringBuilder();
+  first = true;
+  list.each((x){
+    if (not first) {
+      combined!.print(joiner);
+    }
+    combined!.print(x);
+    set first = false;
+  });
+  ret combined.str();
 }
 
 fn map<E, F>(list &List<E>, func F) List<T>

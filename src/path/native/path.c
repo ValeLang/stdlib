@@ -18,24 +18,24 @@
 #include "stdlib/readFileAsString.h"
 #include "stdlib/writeStringToFile.h"
 
-static long is_file_internal(char* path) {
+static int8_t is_file_internal(char* path) {
   struct stat path_stat;
   stat(path, &path_stat);
   return S_ISREG(path_stat.st_mode);
 }
 
-static long exists_internal(char* path) {
-    if(!is_file_internal(path)) {
-        DIR* dir = opendir(path);
-        long retval = dir ? 1 : 0;
-        if(retval) { closedir(dir); }
-        return retval;
-    }else{
-        FILE* file = fopen(path, "r");
-        long retval = file ? 1 : 0; 
-        if(retval) { fclose(file); }
-        return retval;
-    }
+static int8_t exists_internal(char* path) {
+  if (!is_file_internal(path)) {
+    DIR* dir = opendir(path);
+    int8_t retval = dir ? 1 : 0;
+    if (retval) { closedir(dir); }
+    return retval;
+  } else {
+    FILE* file = fopen(path, "r");
+    int8_t retval = file ? 1 : 0; 
+    if (retval) { fclose(file); }
+    return retval;
+  }
 }
 
 static long makeDirectory_internal(char* path) {
@@ -103,14 +103,14 @@ static void writeStringToFile_internal(char* filename, char* contents, int conte
 
 static stdlib_StrArray* iterdir_internal(char* path) {
     vale_queue* entries = vale_queue_empty();
-    if(is_file_internal(path)) {
+    if (is_file_internal(path)) {
         perror("is a file not a path");
         exit(0);
     }
     DIR* d;
     struct dirent *dir;
     d = opendir(path);
-    if(d) {
+    if (d) {
         while((dir = readdir(d)) != NULL){
             int64_t length = strlen(dir->d_name);
             ValeStr* path_name = ValeStrNew(length);
@@ -124,7 +124,7 @@ static stdlib_StrArray* iterdir_internal(char* path) {
         retval->length = 0;
         return retval;
     }
-    long length = entries->length;
+    //long length = entries->length;
     stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
     vale_queue_destroy(entries);
     return retval;
@@ -132,45 +132,53 @@ static stdlib_StrArray* iterdir_internal(char* path) {
 
 
 
-extern ValeInt stdlib_exists(ValeStr* path) {
+extern int8_t stdlib_exists(ValeStr* path) {
   long result = exists_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
 // Aborts on failure, beware!
 extern ValeStr* stdlib_readFileAsString(ValeStr* filenameVStr) {
   ValeStr* result = readFileAsString_internal(filenameVStr->chars);
-  ValeReleaseMessage(filenameVStr);
+  free(filenameVStr);
   return result;
 }
 
 extern void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   writeStringToFile_internal(filenameVStr->chars, contentsVStr->chars, contentsVStr->length);
-  ValeReleaseMessage(filenameVStr);
-  ValeReleaseMessage(contentsVStr);
+  free(filenameVStr);
+  free(contentsVStr);
 }
 
 extern stdlib_StrArray* stdlib_iterdir(ValeStr* path) {
   stdlib_StrArray* result = iterdir_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
-extern ValeInt stdlib_is_file(ValeStr* path) {
+extern int8_t stdlib_is_file(ValeStr* path) {
   long result = exists_internal(path->chars) && is_file_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
-extern ValeInt stdlib_is_dir(ValeStr* path) {
+extern int8_t stdlib_is_dir(ValeStr* path) {
   long result = !is_file_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
 extern ValeInt stdlib_makeDirectory(ValeStr* path) {
   long result = makeDirectory_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
+}
+
+extern ValeStr* stdlib_GetPathSeparator() {
+#ifdef _WIN32
+  return ValeStrFrom("\\");
+#else
+  return ValeStrFrom("/");
+#endif
 }
