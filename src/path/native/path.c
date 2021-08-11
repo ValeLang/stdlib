@@ -31,6 +31,9 @@ static int8_t is_file_internal(char* path) {
 }
 
 static int8_t exists_internal(char* path) {
+#ifdef _WIN32
+  return PathFileExistsA(path);
+#else
   if (!is_file_internal(path)) {
     DIR* dir = opendir(path);
     int8_t retval = dir ? 1 : 0;
@@ -42,6 +45,7 @@ static int8_t exists_internal(char* path) {
     if (retval) { fclose(file); }
     return retval;
   }
+#endif
 }
 
 static long makeDirectory_internal(char* path) {
