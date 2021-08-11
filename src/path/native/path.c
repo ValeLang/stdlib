@@ -125,7 +125,9 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
 
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
     wprintf(L"Path not found: [%s]\n", dirPath);
-    return false;
+    stdlib_StrArray* retval = malloc(sizeof(long));
+    retval->length = 0;
+    return retval;
   } 
 
   do {
