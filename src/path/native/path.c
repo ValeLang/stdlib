@@ -33,7 +33,7 @@ static int8_t is_file_internal(char* path) {
 static int8_t exists_internal(char* path) {
 #ifdef _WIN32
   WIN32_FIND_DATA FindFileData;
-  HANDLE handle = FindFirstFile(file, &FindFileData) ;
+  HANDLE handle = FindFirstFile(path, &FindFileData) ;
   int found = handle != INVALID_HANDLE_VALUE;
   if (found) {
     //FindClose(&handle); this will crash
