@@ -5,7 +5,6 @@
 #include <assert.h>
 #include<string.h>
 #include<sys/stat.h>
-#include<unistd.h>
 #include<dirent.h>
 #include<errno.h>
 #include <limits.h>
@@ -13,7 +12,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-
+#include<unistd.h>
 #endif
 
 #include "stdlib/StrArray.h"
