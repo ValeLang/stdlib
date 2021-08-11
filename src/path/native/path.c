@@ -134,6 +134,7 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   //Specify a file mask. *.* = We want everything! 
   sprintf(sPath, L"%s\\*.*", dirPath); 
 
+  printf("doing find first file for: '%s' '%s'\n", dirPath, sPath);
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
     fprintf(stderr, "Path not found: [%s]\n", dirPath);
     stdlib_StrArray* retval = malloc(sizeof(long));
