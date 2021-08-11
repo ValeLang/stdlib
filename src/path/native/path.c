@@ -121,10 +121,10 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   wchar_t sPath[2048]; 
 
   //Specify a file mask. *.* = We want everything! 
-  wsprintf(sPath, L"%s\\*.*", sDir); 
+  wsprintf(sPath, L"%s\\*.*", dirPath); 
 
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
-    wprintf(L"Path not found: [%s]\n", sDir);
+    wprintf(L"Path not found: [%s]\n", dirPath);
     return false;
   } 
 
