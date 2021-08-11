@@ -25,9 +25,13 @@
 #include "stdlib/writeStringToFile.h"
 
 static int8_t is_file_internal(char* path) {
+#ifdef _WIN32
+  return !PathIsDirectoryA(path);
+#else
   struct stat path_stat;
   stat(path, &path_stat);
   return S_ISREG(path_stat.st_mode);
+#endif
 }
 
 static int8_t exists_internal(char* path) {
@@ -128,10 +132,10 @@ static stdlib_StrArray* iterdir_internal(char* dirPath) {
   wchar_t sPath[2048]; 
 
   //Specify a file mask. *.* = We want everything! 
-  wsprintf(sPath, L"%s\\*.*", dirPath); 
+  sprintf(sPath, L"%s\\*.*", dirPath); 
 
   if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
-    wprintf(L"Path not found: [%s]\n", dirPath);
+    fprintf(stderr, "Path not found: [%s]\n", dirPath);
     stdlib_StrArray* retval = malloc(sizeof(long));
     retval->length = 0;
     return retval;
