@@ -111,33 +111,61 @@ static void writeStringToFile_internal(char* filename, char* contents, int conte
   fclose(fp);
 }
 
-static stdlib_StrArray* iterdir_internal(char* path) {
-    vale_queue* entries = vale_queue_empty();
-    if (is_file_internal(path)) {
-        perror("is a file not a path");
-        exit(0);
+static stdlib_StrArray* iterdir_internal(char* dirPath) {
+  vale_queue* entries = vale_queue_empty();
+
+#ifdef _WIN32
+  WIN32_FIND_DATA fdFile; 
+  HANDLE hFind = NULL; 
+
+  wchar_t sPath[2048]; 
+
+  //Specify a file mask. *.* = We want everything! 
+  wsprintf(sPath, L"%s\\*.*", sDir); 
+
+  if ((hFind = FindFirstFile(sPath, &fdFile)) == INVALID_HANDLE_VALUE) {
+    wprintf(L"Path not found: [%s]\n", sDir);
+    return false;
+  } 
+
+  do {
+    //Find first file will always return "."
+    //    and ".." as the first two directories. 
+    if (wcscmp(fdFile.cFileName, L".") != 0 &&
+        wcscmp(fdFile.cFileName, L"..") != 0) { 
+      vale_queue_push(entries, fdFile.cFileName); 
     }
-    DIR* d;
-    struct dirent *dir;
-    d = opendir(path);
-    if (d) {
-        while((dir = readdir(d)) != NULL){
-            int64_t length = strlen(dir->d_name);
-            ValeStr* path_name = ValeStrNew(length);
-            strcpy(path_name->chars, dir->d_name);
-            vale_queue_push(entries, path_name); 
-        }
-        closedir(d); 
-    }else{
-        printf("cannot open directory: %s\n", path);
-        stdlib_StrArray* retval = malloc(sizeof(long));
-        retval->length = 0;
-        return retval;
-    }
-    //long length = entries->length;
-    stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
-    vale_queue_destroy(entries);
-    return retval;
+  } while(FindNextFile(hFind, &fdFile)); //Find the next file.
+
+  FindClose(hFind); //Always, Always, clean things up!
+
+#else
+  if (is_file_internal(dirPath)) {
+      perror("is a file not a path");
+      exit(0);
+  }
+  DIR* d;
+  struct dirent *dir;
+  d = opendir(dirPath);
+  if (d) {
+      while((dir = readdir(d)) != NULL){
+          int64_t length = strlen(dir->d_name);
+          ValeStr* path_name = ValeStrNew(length);
+          strcpy(path_name->chars, dir->d_name);
+          vale_queue_push(entries, path_name); 
+      }
+      closedir(d); 
+  } else {
+      printf("cannot open directory: %s\n", dirPath);
+      stdlib_StrArray* retval = malloc(sizeof(long));
+      retval->length = 0;
+      return retval;
+  }
+#endif
+
+  stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
+  vale_queue_destroy(entries);
+  return retval;
 }
 
 
