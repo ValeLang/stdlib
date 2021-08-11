@@ -32,7 +32,14 @@ static int8_t is_file_internal(char* path) {
 
 static int8_t exists_internal(char* path) {
 #ifdef _WIN32
-  return PathFileExistsA(path);
+  WIN32_FIND_DATA FindFileData;
+  HANDLE handle = FindFirstFile(file, &FindFileData) ;
+  int found = handle != INVALID_HANDLE_VALUE;
+  if (found) {
+    //FindClose(&handle); this will crash
+    FindClose(handle);
+  }
+  return found;
 #else
   if (!is_file_internal(path)) {
     DIR* dir = opendir(path);
