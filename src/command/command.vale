@@ -9,25 +9,25 @@ struct Subprocess {
   handle i64;
 }
 
-fn spawn(command str) Subprocess {
+fn Subprocess(command str) Result<Subprocess, str> {
   list! = command.split(" ");
   cmd = str(list.get(0));
   newlist! = List<StrSlice>();
   enumerate(&list, (element, index){
     if (index != 0) { newlist!.add(list.get(index)); }
   });
-  ret spawn(cmd, &newlist);
+  ret Subprocess(cmd, &newlist);
 }
 
-fn spawn(command str, args &List<str>) Subprocess {
+fn Subprocess(command str, args &List<str>) Result<Subprocess, str> {
   newlist! = List<StrSlice>();
   each (&args) (element){
     newlist!.add(slice(element));
   }
-  ret spawn(command, &newlist);
+  ret Subprocess(command, &newlist);
 }
 
-fn spawn(relative_program str, args &List<StrSlice>) Subprocess {
+fn FindProgramInPath(relative_program str) Opt<str> {
   paths = get_env_var("PATH").split(":");
 
   program = "";
@@ -45,8 +45,20 @@ fn spawn(relative_program str, args &List<StrSlice>) Subprocess {
   }
 
   if (program == "") {
+    ret None<str>();
+  }
+  ret Some<str>(program);
+}
+
+fn Subprocess(relative_program str, args &List<StrSlice>) Result<Subprocess, str> {
+  paths = get_env_var("PATH").split(":");
+
+  maybe_program = FindProgramInPath(relative_program);
+
+  if (maybe_program.isEmpty()) {
     panic("Unable to find program {relative_program}.");
   }
+  program = (maybe_program).get();
   if (is_dir(program)) {
     panic("Unable to execute {relative_program}, is a directory.");
   }
@@ -60,9 +72,12 @@ fn spawn(relative_program str, args &List<StrSlice>) Subprocess {
   cmd_array = cmdlist.toImmArray();
 
   handle = launch_command(cmd_array);
+  if (handle == 0i64) {
+    ret Err<Subprocess, str>("Failed to create command!");
+  }
 
   retval = Subprocess(cmdlist.join(" "), handle);
-  ret retval;
+  ret Ok<Subprocess, str>(retval);
 }
 
 fn consume_and_join<StdoutConsumer, StderrConsumer>(
@@ -105,15 +120,14 @@ int {
 }
 
 fn print_and_join(self Subprocess) int {
-  consume_and_join(
+  ret consume_and_join(
     self,
     &!(stdout_chunk){ print(stdout_chunk); },
     &!(stderr_chunk){ print(stderr_chunk); });
-  ret join(self);
 }
 
 struct ExecResult {
-  returnCode int;
+  return_code int;
   stdout str;
   stderr str;
 }
@@ -121,16 +135,18 @@ struct ExecResult {
 fn capture_and_join(self Subprocess) ExecResult {
   stdout_builder = StringBuilder();
   stderr_builder = StringBuilder();
-  returnCode =
+  return_code =
       consume_and_join(
           self,
           &!(stdout_chunk){ stdout_builder!.print(stdout_chunk); },
           &!(stderr_chunk){ stderr_builder!.print(stderr_chunk); });
-  ret ExecResult(returnCode, stdout_builder.str(), stderr_builder.str());
+  ret ExecResult(return_code, stdout_builder.str(), stderr_builder.str());
 }
 
 fn join(self Subprocess) int {
-  ret join(self.handle);
+  status = join(self.handle);
+  destroy(self.handle);
+  ret status;
 }
 
 fn alive(self &Subprocess) bool {

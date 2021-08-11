@@ -8,6 +8,13 @@
 #include<unistd.h>
 #include<dirent.h>
 #include<errno.h>
+#include <limits.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+
+#endif
 
 #include "stdlib/StrArray.h"
 #include "stdlib/is_dir.h"
@@ -180,5 +187,44 @@ extern ValeStr* stdlib_GetPathSeparator() {
   return ValeStrFrom("\\");
 #else
   return ValeStrFrom("/");
+#endif
+}
+
+extern ValeStr* stdlib_resolve(ValeStr* relative_path) {
+#ifdef _WIN32
+  char path[MAX_PATH];
+  int length = GetFullPathNameA(relative_path->chars, MAX_PATH, path, NULL);
+  if (length == 0) {
+    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relative_path->chars, GetLastError());
+    exit(1);
+  }
+  ValeStr* result = ValeStrFrom(path);
+  return result;
+#else
+
+  char* realpath_input = relative_path->chars;
+
+  char relative_path_with_home_replaced[PATH_MAX];
+
+  if (relative_path->chars[0] == '~') {
+    char* home = getenv("HOME");
+    if (home == NULL) {
+      fprintf(stderr, "resolve: Couldn't get home directory for ~ replacement.\n");
+      exit(1);
+    }
+    strcpy(relative_path_with_home_replaced, home);
+    strcat(relative_path_with_home_replaced, relative_path->chars + 1);
+    realpath_input = relative_path_with_home_replaced;
+  }
+
+  char* absolute_path = realpath(realpath_input, NULL);
+  if (absolute_path == NULL) {
+    fprintf(stderr, "resolve: Realpath failed for input \"%s\": ", realpath_input);
+    perror("");
+    exit(1);
+  }
+  ValeStr* result = ValeStrFrom(absolute_path);
+  free(absolute_path);
+  return result;
 #endif
 }

@@ -44,12 +44,10 @@ int64_t stdlib_launch_command(stdlib_StrArray* chain) {
   struct subprocess_s* subproc = malloc(sizeof(struct subprocess_s));
   if(subprocess_create(args, subprocess_option_inherit_environment, subproc) != 0){
     perror("command creation failed");
+    return 0;
   }
   out = (unsigned long)subproc;
   free(args);
-  for(long i = 0; i < chain->length; i++){
-    //free(&chain->elements[i]);
-  }
   free(chain);
   return out;
 }
