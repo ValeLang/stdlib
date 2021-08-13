@@ -125,5 +125,15 @@ fn main() export {
     result.isEmpty() should_equal false;
     result.get() should_equal 0;
   });
+
+  suite!.sub("replaceAll", (sts){
+    sts!.test("nothing", { "hello".replaceAll("bork", "arr") should_equal "hello" });
+    sts!.test("basic 1", { "hello".replaceAll("ell", "arr") should_equal "harro" });
+    sts!.test("basic 2", { "hellello".replaceAll("ell", "arr") should_equal "harrarro" });
+    sts!.test("overlapping", { "helllo".replaceAll("ll", "rr") should_equal "herrlo" });
+    sts!.test("begin", { "abc".replaceAll("ab", "xy") should_equal "xyc" });
+    sts!.test("end", { "abc".replaceAll("bc", "xy") should_equal "axy" });
+  });
+
   (suite).finish();
 }

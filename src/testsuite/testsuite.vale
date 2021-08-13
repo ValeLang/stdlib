@@ -20,7 +20,7 @@ fn test<F>(suite &!TestSuite, name str, lambda F) {
   if (name.has(suite.filter)) {
     set suite.num_tests_ran = suite.num_tests_ran + 1;
     println("Test: " + name);
-    lambda();
+    lambda!();
   } else {
     set suite.num_tests_skipped = suite.num_tests_skipped + 1;
   }
@@ -29,6 +29,12 @@ fn test<F>(suite &!TestSuite, name str, lambda F) {
 fn should_equal<T>(a T, b T) {
   if (not (a == b)) {
     panic("Check failed! Expected:\n{a}\nto equal:\n{b}");
+  }
+}
+
+fn should_not_equal<T>(a T, b T) {
+  if (a == b) {
+    panic("Check failed! Expected a difference, but both were: {a}");
   }
 }
 

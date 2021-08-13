@@ -5,9 +5,15 @@
 #include <assert.h>
 #include<string.h>
 #include<sys/stat.h>
+#include<errno.h>
+#include <limits.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include<unistd.h>
 #include<dirent.h>
-#include<errno.h>
+#endif
 
 #include "stdlib/StrArray.h"
 #include "stdlib/is_dir.h"
@@ -17,32 +23,59 @@
 #include "stdlib/makeDirectory.h"
 #include "stdlib/readFileAsString.h"
 #include "stdlib/writeStringToFile.h"
+#include "stdlib/Path.h"
+#include "stdlib/PathList.h"
+#include "stdlib/AddToPathChildList.h"
 
-static long is_file_internal(char* path) {
+static int8_t is_file_internal(char* path) {
+#ifdef _WIN32
+  return (GetFileAttributes(path) & FILE_ATTRIBUTE_DIRECTORY) == 0;
+#else
   struct stat path_stat;
   stat(path, &path_stat);
   return S_ISREG(path_stat.st_mode);
+#endif
 }
 
-static long exists_internal(char* path) {
-    if(!is_file_internal(path)) {
-        DIR* dir = opendir(path);
-        long retval = dir ? 1 : 0;
-        if(retval) { closedir(dir); }
-        return retval;
-    }else{
-        FILE* file = fopen(path, "r");
-        long retval = file ? 1 : 0; 
-        if(retval) { fclose(file); }
-        return retval;
-    }
+static int8_t exists_internal(char* relativePath) {
+#ifdef _WIN32
+
+  char absolutePath[MAX_PATH];
+  int length = GetFullPathNameA(relativePath, MAX_PATH, absolutePath, NULL);
+  if (length == 0) {
+    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relativePath, GetLastError());
+    exit(1);
+  }
+
+  WIN32_FIND_DATA FindFileData;
+  HANDLE handle = FindFirstFile(absolutePath, &FindFileData) ;
+  int found = handle != INVALID_HANDLE_VALUE;
+  if (found) {
+    //FindClose(&handle); this will crash
+    FindClose(handle);
+  }
+  return found;
+#else
+  if (!is_file_internal(relativePath)) {
+    DIR* dir = opendir(relativePath);
+    int8_t retval = dir ? 1 : 0;
+    if (retval) { closedir(dir); }
+    return retval;
+  } else {
+    FILE* file = fopen(relativePath, "r");
+    int8_t retval = file ? 1 : 0; 
+    if (retval) { fclose(file); }
+    return retval;
+  }
+#endif
 }
 
-static long makeDirectory_internal(char* path) {
-  if (!exists_internal(path)) {
-     return mkdir(path, 0700);
-    }
-    return 1;
+static int8_t makeDirectory_internal(char* path) {
+  if (mkdir(path, 0700) != 0) {
+    perror("Couldn't make directory");
+    return 0;
+  }
+  return 1;
 }
 
 static ValeStr* readFileAsString_internal(char* filename) {
@@ -101,76 +134,158 @@ static void writeStringToFile_internal(char* filename, char* contents, int conte
   fclose(fp);
 }
 
-static stdlib_StrArray* iterdir_internal(char* path) {
-    vale_queue* entries = vale_queue_empty();
-    if(is_file_internal(path)) {
-        perror("is a file not a path");
-        exit(0);
+static int8_t iterdir_internal(stdlib_PathRef path, char* dirPath, stdlib_PathListRef destinationList) {
+  if (!exists_internal(dirPath)) {
+    fprintf(stderr, "iterdir: path doesn't exist! %s\n", dirPath);
+    return 0;
+  }
+  if (is_file_internal(dirPath)) {
+    fprintf(stderr, "Called iterdir on a file, not a path! %s\n", dirPath);
+    return 0;
+  }
+
+#ifdef _WIN32
+  WIN32_FIND_DATA fdFile; 
+  HANDLE hFind = NULL; 
+
+  //Specify a file mask. *.* = We want everything! 
+  char searchPath[2048] = { 0 };
+  sprintf(searchPath, "%s\\*.*", dirPath); 
+
+  if ((hFind = FindFirstFile(searchPath, &fdFile)) == INVALID_HANDLE_VALUE) {
+    fprintf(stderr, "Path not found: [%s]\n", dirPath);
+    return 0;
+  } 
+
+  do {
+    //Find first file will always return "."
+    //    and ".." as the first two directories. 
+    if (strcmp(fdFile.cFileName, ".") != 0 &&
+        strcmp(fdFile.cFileName, "..") != 0) {
+      stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(fdFile.cFileName));
     }
-    DIR* d;
-    struct dirent *dir;
-    d = opendir(path);
-    if(d) {
-        while((dir = readdir(d)) != NULL){
-            int64_t length = strlen(dir->d_name);
-            ValeStr* path_name = ValeStrNew(length);
-            strcpy(path_name->chars, dir->d_name);
-            vale_queue_push(entries, path_name); 
-        }
-        closedir(d); 
-    }else{
-        printf("cannot open directory: %s\n", path);
-        stdlib_StrArray* retval = malloc(sizeof(long));
-        retval->length = 0;
-        return retval;
+  } while (FindNextFile(hFind, &fdFile)); //Find the next file.
+
+  FindClose(hFind); //Always, Always, clean things up!
+
+#else
+  DIR* d;
+  struct dirent *dir;
+  d = opendir(dirPath);
+  if (d == 0) {
+    fprintf(stderr, "cannot open directory: %s\n", dirPath);
+    return 0;
+  }
+
+  while((dir = readdir(d)) != NULL){
+    if (strcmp(".", dir->d_name) != 0 &&
+        strcmp("..", dir->d_name) != 0) {
+      stdlib_AddToPathChildList(path, destinationList, ValeStrFrom(dir->d_name));
     }
-    long length = entries->length;
-    stdlib_StrArray* retval = (stdlib_StrArray*)vale_queue_to_array(entries); 
-    vale_queue_destroy(entries);
-    return retval;
+  }
+  closedir(d); 
+#endif
+
+  return 1;
 }
 
 
 
-extern ValeInt stdlib_exists(ValeStr* path) {
+extern int8_t stdlib_exists(ValeStr* path) {
   long result = exists_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
 // Aborts on failure, beware!
 extern ValeStr* stdlib_readFileAsString(ValeStr* filenameVStr) {
   ValeStr* result = readFileAsString_internal(filenameVStr->chars);
-  ValeReleaseMessage(filenameVStr);
+  free(filenameVStr);
   return result;
 }
 
 extern void stdlib_writeStringToFile(ValeStr* filenameVStr, ValeStr* contentsVStr) {
   writeStringToFile_internal(filenameVStr->chars, contentsVStr->chars, contentsVStr->length);
-  ValeReleaseMessage(filenameVStr);
-  ValeReleaseMessage(contentsVStr);
+  free(filenameVStr);
+  free(contentsVStr);
 }
 
-extern stdlib_StrArray* stdlib_iterdir(ValeStr* path) {
-  stdlib_StrArray* result = iterdir_internal(path->chars);
-  ValeReleaseMessage(path);
+extern int8_t stdlib_iterdir(stdlib_PathRef path, ValeStr* pathStr, stdlib_PathListRef destinationList) {
+  int8_t result = iterdir_internal(path, pathStr->chars, destinationList);
+  free(pathStr);
   return result;
 }
 
-extern ValeInt stdlib_is_file(ValeStr* path) {
+extern int8_t stdlib_is_file(ValeStr* path) {
   long result = exists_internal(path->chars) && is_file_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
-extern ValeInt stdlib_is_dir(ValeStr* path) {
+extern int8_t stdlib_is_dir(ValeStr* path) {
   long result = !is_file_internal(path->chars);
-  ValeReleaseMessage(path);
+  free(path);
   return result;
 }
 
-extern ValeInt stdlib_makeDirectory(ValeStr* path) {
-  long result = makeDirectory_internal(path->chars);
-  ValeReleaseMessage(path);
+extern int8_t stdlib_makeDirectory(ValeStr* path) {
+  int8_t result = makeDirectory_internal(path->chars);
+  free(path);
   return result;
+}
+
+extern ValeStr* stdlib_GetEnvPathSeparator() {
+#ifdef _WIN32
+  return ValeStrFrom(";");
+#else
+  return ValeStrFrom(":");
+#endif
+}
+
+extern ValeStr* stdlib_GetPathSeparator() {
+#ifdef _WIN32
+  return ValeStrFrom("\\");
+#else
+  return ValeStrFrom("/");
+#endif
+}
+
+extern ValeStr* stdlib_resolve(ValeStr* relative_path) {
+#ifdef _WIN32
+  char path[MAX_PATH];
+  int length = GetFullPathNameA(relative_path->chars, MAX_PATH, path, NULL);
+  if (length == 0) {
+    fprintf(stderr, "resolve: GetFullPathNameA failed for input \"%s\", error %ld\n", relative_path->chars, GetLastError());
+    exit(1);
+  }
+  ValeStr* result = ValeStrFrom(path);
+  return result;
+#else
+
+  char* realpath_input = relative_path->chars;
+
+  char relative_path_with_home_replaced[PATH_MAX];
+
+  if (relative_path->chars[0] == '~') {
+    char* home = getenv("HOME");
+    if (home == NULL) {
+      fprintf(stderr, "resolve: Couldn't get home directory for ~ replacement.\n");
+      exit(1);
+    }
+    strcpy(relative_path_with_home_replaced, home);
+    strcat(relative_path_with_home_replaced, relative_path->chars + 1);
+    realpath_input = relative_path_with_home_replaced;
+  }
+
+  char* absolute_path = realpath(realpath_input, NULL);
+  if (absolute_path == NULL) {
+    fprintf(stderr, "resolve: Realpath failed for input \"%s\": ", realpath_input);
+    perror("");
+    exit(1);
+  }
+
+  ValeStr* result = ValeStrFrom(absolute_path);
+  free(absolute_path);
+  return result;
+#endif
 }
