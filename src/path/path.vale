@@ -3,26 +3,176 @@ import stdlib.collections.*;
 export Array<imm, final, str> as StrArray;
 export Array<mut, vary, str> as MutStrArray;
 
-struct Path {
-    segments List<str>;
-    drive Opt<str>;
+
+export List<Path> as PathList;
+fn AddToPathChildList(parent &Path, list &!List<Path>, child_name str) export {
+  list!.add(parent./(child_name));
 }
-fn to_windows_path(path &Path) str {
-    retval! = "";
-    //if(path.is_relative == false){
-    //    mut retval = drive;
-    //}
-    
+
+struct Path export {
+  segments List<str>;
+  //drive Opt<str>;
 }
-fn to_unix_path(path &Path) str {
-    retval! = "";
-     
+fn resolve(self &Path) Path {
+  Path(resolve(self.str()))
 }
-fn is_dir(value str) int extern;
-fn is_file(value str) int extern;
-fn exists(path str) int extern;
-fn iterdir(path str) Array<imm,final,str> extern;
-fn makeDirectory(path str) int extern;
+
+fn is_dir(path &Path) bool {
+  is_dir(path.str())
+}
+
+fn is_file(path &Path) bool {
+  is_file(path.str())
+}
+
+fn makeDirectory(path &Path) bool {
+  makeDirectory(path.str())
+}
+
+fn makeDirectories(path &Path) bool {
+  if (path.segments.len() == 0) {
+    ret false;
+  }
+  if (not path.exists()) {
+    // Recurse
+    if (not makeDirectories(&path.parent())) {
+      ret false;
+    }
+    if (not path.makeDirectory()) {
+      ret false;
+    }
+  }
+  ret true;
+}
+
+fn parent(path &Path) Path {
+  result = path.clone();
+  if (result.segments.len() == 0) {
+    panic("Can't get parent directory, is already root.");
+  }
+  result.segments!.remove(result.segments.len() - 1);
+  ret result;
+}
+
+fn directory(path &Path) Path {
+  result = path.clone();
+  if (path.is_dir()) {
+    ret result;
+  }
+  result.segments!.remove(result.segments.len() - 1);
+  ret result;
+}
+
+fn Path(s str) Path {
+  segments = List<str>();
+  s.split("/").each((a){
+    a.split("\\").each((b){
+      segments!.add(b.str());
+    });
+  });
+  // If it ends in a / there will be an empty string at the end, remove it.
+  if (segments.get(segments.len() - 1) == "") {
+    segments!.remove(segments.len() - 1);
+  }
+  vassert(segments.len() > 0);
+  ret Path(segments);
+}
+
+fn name(path &Path) str {
+  path.segments.get(path.segments.len() - 1)
+}
+
+fn str(path &Path) str {
+  sep = GetPathSeparator();
+
+  builder = StringBuilder();
+  first = true;
+  //if (not path.drive.isEmpty()) {
+  //  builder!.print(path.drive.get());
+  //  set first = false;
+  //}
+  path.segments.each((segment){
+    if (not first) {
+      builder!.print(sep);
+    }
+    builder!.print(segment);
+    set first = false;
+  });
+  ret builder.str();
+}
+
+fn exists(path &Path) bool {
+  ret path.str().exists();
+}
+
+fn ==(a &Path, b &Path) bool {
+  if (a.segments.len() != b.segments.len()) {
+    ret false;
+  }
+  i = 0;
+  while (i < a.segments.len()) {
+    if (a.segments.get(i) != b.segments.get(i)) {
+      ret false;
+    }
+    set i = i + 1;
+  }
+
+  //if (a.drive.isEmpty() != b.drive.isEmpty()) {
+  //  ret false;
+  //}
+  //if (not a.drive.isEmpty()) {
+  //  if (a.drive.get() != b.drive.get()) {
+  //    ret false;
+  //  }
+  //}
+  ret true;
+}
+fn !=(a &Path, b &Path) bool { not (a == b) }
+
+fn clone(self &Path) Path {
+  segments = List<str>();
+  self.segments.each((segment){
+    segments!.add(segment);
+  });
+  ret Path(segments); //, self.drive);
+}
+
+fn /(path &Path, segment str) Path {
+  new_path = path.clone();
+
+  new_segments = segment.split(GetPathSeparator());
+  new_segments.each((new_segment){
+    if (new_segment.len() > 0) {
+      new_path.segments!.add(new_segment.str());
+    }
+  });
+
+  ret new_path;
+}
+
+fn iterdir(path &Path) List<Path> {
+  destination_list = List<Path>();
+  success = iterdir(path, path.str(), &!destination_list);
+  if (not success) {
+    panic("iterdir failed!");
+  }
+  ret destination_list;
+}
+
+fn readAsString(path &Path) str {
+  readFileAsString(path.str())
+}
+fn writeString(path &Path, contentsVStr str) {
+  writeStringToFile(path.str(), contentsVStr)
+}
 
 fn readFileAsString(filenameVStr str) str extern;
 fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
+fn GetEnvPathSeparator() str extern;
+fn GetPathSeparator() str extern;
+fn is_dir(value str) bool extern;
+fn is_file(value str) bool extern;
+fn exists(path str) bool extern;
+fn iterdir(path &Path, path_str str, destination_list &!List<Path>) bool extern;
+fn makeDirectory(path str) bool extern;
+fn resolve(path str) str extern;

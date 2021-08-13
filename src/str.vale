@@ -29,7 +29,7 @@ fn find(haystack str, needle StrSlice) Opt<StrSlice> { find(haystack.slice(), ne
 fn find(haystack StrSlice, needle str) Opt<StrSlice> { find(haystack, needle.slice()) }
 fn find(haystack StrSlice, needle StrSlice) Opt<StrSlice> {
   offsetAfterBegin =
-      vstr_indexOf(
+      strindexof(
           haystack.string, haystack.begin, haystack.end,
           needle.string, needle.begin, needle.end);
 
@@ -74,7 +74,7 @@ fn slice(s StrSlice, begin int, end int) StrSlice {
 
 
 fn str(s StrSlice) str {
-  ret vstr_substring(s.string, s.begin, s.len());
+  ret substring(s.string, s.begin, s.len());
 }
 
 
@@ -85,23 +85,23 @@ fn ==(a str, b str) bool { a.slice() == b.slice() }
 fn ==(a str, b StrSlice) bool { a.slice() == b }
 fn ==(a StrSlice, b str) bool { a == b.slice() }
 fn ==(a StrSlice, b StrSlice) bool {
-  vstr_eq(a.string, a.begin, a.end, b.string, b.begin, b.end)
+  streq(a.string, a.begin, a.end, b.string, b.begin, b.end)
 }
 
 fn <=>(a str, b str) int { a.slice() <=> b.slice() }
 fn <=>(a str, b StrSlice) int { a.slice() <=> b }
 fn <=>(a StrSlice, b str) int { a <=> b.slice() }
 fn <=>(a StrSlice, b StrSlice) int {
-  vstr_cmp(a.string, a.begin, a.end, b.string, b.begin, b.end)
+  strcmp(a.string, a.begin, a.end, b.string, b.begin, b.end)
 }
 
 fn +(a str, b StrSlice) str { a.slice() + b }
 fn +(a StrSlice, b str) str { a + b.slice() }
 fn +(a StrSlice, b StrSlice) str {
-  __vaddStr(a.string, a.begin, a.end - a.begin, b.string, b.begin, b.end - b.begin)
+  addStr(a.string, a.begin, a.end - a.begin, b.string, b.begin, b.end - b.begin)
 }
 
-fn print(s StrSlice) { __vprintStr(s.string, s.begin, s.end - s.begin) }
+fn print(s StrSlice) { printstr(s.string, s.begin, s.end - s.begin) }
 
 fn println(s StrSlice) void {
   print(s + "\n");
@@ -110,9 +110,9 @@ fn println(s StrSlice) void {
 fn toAscii(s str) int { s.slice().toAscii() }
 fn toAscii(s StrSlice) int {
   vassert(s.begin + 1 <= s.end);
-  = vstr_toascii(s.string, s.begin, s.end);
+  = strtoascii(s.string, s.begin, s.end);
 }
 
 fn fromAscii(code int) str {
-  ret vstr_fromascii(code);
+  ret strfromascii(code);
 }

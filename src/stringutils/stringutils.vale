@@ -107,28 +107,40 @@ fn trimnl(s! StrSlice) StrSlice { ltrimnl(rtrimnl(s)) }
 
 fn int(s! str) Opt<int> { int(s.slice()) }
 fn int(s! StrSlice) Opt<int> {
-  hasNegative! = false;
-  totalSoFar! = 0;
-
   if (s == "") {
     ret None<int>();
   }
 
+  hasNegative =
+    if (s.startsWith("-")) {
+      set s = s.slice(1);
+      = true;
+    } else {
+      = false;
+    };
+
+  totalSoFar = 0;
+  digitsConsumed = 0;
+
   while (s != "") {
     digitStr = s.slice(0, 1);
 
-    if (digitStr == "-") {
-      set hasNegative = true;
-    } else {
-      ascii = toAscii(digitStr);
-      if (ascii < 48 or ascii >= 58) {
-        ret None<int>();
-      }
-      digit = ascii - 48;
-      set totalSoFar = totalSoFar * 10 + digit;
+    ascii = toAscii(digitStr);
+    if (ascii < 48 or ascii >= 58) {
+      ret None<int>();
     }
+    digit = ascii - 48;
 
+    set totalSoFar = totalSoFar * 10 + digit;
+    set digitsConsumed = digitsConsumed + 1;
     set s = s.slice(1);
+  }
+
+  if (hasNegative) {
+    if (digitsConsumed == 0) {
+      ret None<int>();
+    }
+    set totalSoFar = totalSoFar * -1;
   }
 
   ret Some(totalSoFar);
@@ -307,6 +319,7 @@ fn assembleStr(self &StringBuilder) str {
   }
   ret result;
 }
+fn str(self &StringBuilder) str { self.assembleStr() }
 fn print(self &!StringBuilder, b bool) {
   self!.print(str(b));
 }
@@ -330,4 +343,47 @@ fn println(self &!StringBuilder, s StrSlice) {
 fn println(self &!StringBuilder, i int) {
   self!.print(i);
   self!.print("\n");
+}
+
+
+fn replaceAll(source str, needle str, replacement str) str {
+  replaceAll(source.slice(), needle.slice(), replacement.slice())
+}
+fn replaceAll(source str, needle str, replacement StrSlice) str {
+  replaceAll(source.slice(), needle.slice(), replacement)
+}
+fn replaceAll(source str, needle StrSlice, replacement str) str {
+  replaceAll(source.slice(), needle, replacement.slice())
+}
+fn replaceAll(source str, needle StrSlice, replacement StrSlice) str {
+  replaceAll(source.slice(), needle, replacement)
+}
+fn replaceAll(source StrSlice, needle str, replacement str) str {
+  replaceAll(source, needle.slice(), replacement.slice())
+}
+fn replaceAll(source StrSlice, needle str, replacement StrSlice) str {
+  replaceAll(source, needle.slice(), replacement)
+}
+fn replaceAll(source StrSlice, needle StrSlice, replacement str) str {
+  replaceAll(source, needle, replacement.slice())
+}
+fn replaceAll(remaining_source StrSlice, needle StrSlice, replacement StrSlice) str {
+  builder = StringBuilder();
+
+  running = true;
+  while (running) {
+    maybe_next_and_new_remaining_source = remaining_source.splitOnce(needle);
+    if (maybe_next_and_new_remaining_source.isEmpty()) {
+      set running = false;
+    } else {
+      (next, new_remaining_source) = maybe_next_and_new_remaining_source.get();
+      builder!.print(next);
+      builder!.print(replacement);
+      set remaining_source = new_remaining_source;
+    }
+  }
+
+  builder!.print(remaining_source);
+
+  ret builder.str();
 }
