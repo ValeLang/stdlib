@@ -1,4 +1,4 @@
 
-fn stdinReadInt() int extern;
+extern func stdinReadInt() int;
 
-fn getch() int extern;
+extern func getch() int;
