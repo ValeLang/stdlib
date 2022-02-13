@@ -81,8 +81,16 @@ void stdlib_write_stdin(int64_t cmd, ValeStr* contents) {
   for (int i = 0; i < contents->length; i++) {
     fputc(contents->chars[i], stdin_handle);
   }
-  //fclose(stdin_handle);
   free(contents);
+}
+
+void stdlib_close_stdin(int64_t handle){
+  FILE* stdin_handle = subprocess_stdin((struct subprocess_s*)handle);
+  int success = fclose(stdin_handle);
+  if (success != 0) {
+    perror("Couldn't close subprocess stdin");
+    exit(1);
+  }
 }
 
 long stdlib_join(int64_t handle){

@@ -109,6 +109,8 @@ func consume_and_join<StdoutConsumer, StderrConsumer>(
   stdout_consumer StdoutConsumer,
   stderr_consumer StderrConsumer)
 int {
+  close_stdin(self.handle);
+
   running = true;
   while running {
     stdout_consumed_anything = false;
@@ -207,6 +209,7 @@ func read_stderr(self &Subprocess, len int) str {
 extern func get_env_var(name str) str;
 extern func launch_command(args Array<imm, str>) i64;
 extern func write_stdin(cmd i64, s str);
+extern func close_stdin(cmd i64);
 extern func read_stdout(cmd i64, len int) str;
 extern func read_stderr(cmd i64, len int) str;
 extern func join(cmd i64) int;
