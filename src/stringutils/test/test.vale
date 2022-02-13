@@ -1,7 +1,7 @@
 import stdlib.stringutils.*;
 import stdlib.testsuite.*;
 
-fn main() export {
+exported func main() {
   suite = TestSuite();
   suite!.test("splice", {
     splice("moo", 1, 1, "lol") should_equal "mlolo";
@@ -18,14 +18,14 @@ fn main() export {
   suite!.test("splitOnce 3", {
     maybeFirstAndRest = " bork".splitOnce(" ");
     maybeFirstAndRest.isEmpty() should_equal false;
-    (first, rest) = maybeFirstAndRest.get();
+    [first, rest] = maybeFirstAndRest.get();
     first should_equal "".slice();
     rest should_equal "bork".slice();
   });
   suite!.test("splitOnce 4", {
     maybeFirstAndRest = "bork ".splitOnce(" ");
     maybeFirstAndRest.isEmpty() should_equal false;
-    (first, rest) = maybeFirstAndRest.get();
+    [first, rest] = maybeFirstAndRest.get();
     first should_equal "bork".slice();
     rest should_equal "".slice();
   });
@@ -126,7 +126,7 @@ fn main() export {
     result.get() should_equal 0;
   });
 
-  suite!.sub("replaceAll", (sts){
+  suite!.sub("replaceAll", (sts) => {
     sts!.test("nothing", { "hello".replaceAll("bork", "arr") should_equal "hello" });
     sts!.test("basic 1", { "hello".replaceAll("ell", "arr") should_equal "harro" });
     sts!.test("basic 2", { "hellello".replaceAll("ell", "arr") should_equal "harrarro" });

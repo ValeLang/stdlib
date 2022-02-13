@@ -1,51 +1,38 @@
 import stdlib.collections.*;
 
-export Array<imm, final, str> as StrArray;
-export Array<mut, vary, str> as MutStrArray;
-
-
+export Array<imm, str> as StrArray;
+export Array<mut, str> as MutStrArray;
 export List<Path> as PathList;
-fn AddToPathChildList(parent &Path, list &!List<Path>, child_name str) export {
+
+
+interface FileError { }
+struct FileNotFoundError {
+  path Path;
+}
+impl FileError for FileNotFoundError;
+
+
+exported func AddToPathChildList(parent &Path, list &!List<Path>, child_name str) {
   list!.add(parent./(child_name));
 }
 
-struct Path export {
+exported struct Path {
   segments List<str>;
   //drive Opt<str>;
 }
-fn resolve(self &Path) Path {
+func resolve(self &Path) Path {
   Path(resolve(self.str()))
 }
 
-fn is_dir(path &Path) bool {
+func is_dir(path &Path) bool {
   is_dir(path.str())
 }
 
-fn is_file(path &Path) bool {
+func is_file(path &Path) bool {
   is_file(path.str())
 }
 
-fn makeDirectory(path &Path) bool {
-  makeDirectory(path.str())
-}
-
-fn makeDirectories(path &Path) bool {
-  if (path.segments.len() == 0) {
-    ret false;
-  }
-  if (not path.exists()) {
-    // Recurse
-    if (not makeDirectories(&path.parent())) {
-      ret false;
-    }
-    if (not path.makeDirectory()) {
-      ret false;
-    }
-  }
-  ret true;
-}
-
-fn parent(path &Path) Path {
+func parent(path &Path) Path {
   result = path.clone();
   if (result.segments.len() == 0) {
     panic("Can't get parent directory, is already root.");
@@ -54,7 +41,7 @@ fn parent(path &Path) Path {
   ret result;
 }
 
-fn directory(path &Path) Path {
+func directory(path &Path) Path {
   result = path.clone();
   if (path.is_dir()) {
     ret result;
@@ -63,26 +50,26 @@ fn directory(path &Path) Path {
   ret result;
 }
 
-fn Path(s str) Path {
+func Path(s str) Path {
   segments = List<str>();
-  s.split("/").each((a){
-    a.split("\\").each((b){
+  foreach a in s.split("/") {
+    foreach b in a.split("\\") {
       segments!.add(b.str());
-    });
-  });
+    }
+  }
   // If it ends in a / there will be an empty string at the end, remove it.
   if (segments.get(segments.len() - 1) == "") {
     segments!.remove(segments.len() - 1);
   }
-  vassert(segments.len() > 0);
+  vassert(segments.len() > 0, "Path is empty!");
   ret Path(segments);
 }
 
-fn name(path &Path) str {
+func name(path &Path) str {
   path.segments.get(path.segments.len() - 1)
 }
 
-fn str(path &Path) str {
+func str(path &Path) str {
   sep = GetPathSeparator();
 
   builder = StringBuilder();
@@ -91,21 +78,21 @@ fn str(path &Path) str {
   //  builder!.print(path.drive.get());
   //  set first = false;
   //}
-  path.segments.each((segment){
+  foreach segment in path.segments {
     if (not first) {
       builder!.print(sep);
     }
     builder!.print(segment);
     set first = false;
-  });
+  }
   ret builder.str();
 }
 
-fn exists(path &Path) bool {
+func exists(path &Path) bool {
   ret path.str().exists();
 }
 
-fn ==(a &Path, b &Path) bool {
+func ==(a &Path, b &Path) bool {
   if (a.segments.len() != b.segments.len()) {
     ret false;
   }
@@ -127,30 +114,30 @@ fn ==(a &Path, b &Path) bool {
   //}
   ret true;
 }
-fn !=(a &Path, b &Path) bool { not (a == b) }
+func !=(a &Path, b &Path) bool { not (a == b) }
 
-fn clone(self &Path) Path {
+func clone(self &Path) Path {
   segments = List<str>();
-  self.segments.each((segment){
+  foreach segment in self.segments {
     segments!.add(segment);
-  });
+  }
   ret Path(segments); //, self.drive);
 }
 
-fn /(path &Path, segment str) Path {
+func /(path &Path, segment str) Path {
   new_path = path.clone();
 
   new_segments = segment.split(GetPathSeparator());
-  new_segments.each((new_segment){
+  foreach new_segment in new_segments {
     if (new_segment.len() > 0) {
       new_path.segments!.add(new_segment.str());
     }
-  });
+  }
 
   ret new_path;
 }
 
-fn iterdir(path &Path) List<Path> {
+func iterdir(path &Path) List<Path> {
   destination_list = List<Path>();
   success = iterdir(path, path.str(), &!destination_list);
   if (not success) {
@@ -159,20 +146,50 @@ fn iterdir(path &Path) List<Path> {
   ret destination_list;
 }
 
-fn readAsString(path &Path) str {
+func readAsString(path &Path) str {
   readFileAsString(path.str())
 }
-fn writeString(path &Path, contentsVStr str) {
+func writeString(path &Path, contentsVStr str) {
   writeStringToFile(path.str(), contentsVStr)
 }
 
-fn readFileAsString(filenameVStr str) str extern;
-fn writeStringToFile(filenameVStr str, contentsVStr str) void extern;
-fn GetEnvPathSeparator() str extern;
-fn GetPathSeparator() str extern;
-fn is_dir(value str) bool extern;
-fn is_file(value str) bool extern;
-fn exists(path str) bool extern;
-fn iterdir(path &Path, path_str str, destination_list &!List<Path>) bool extern;
-fn makeDirectory(path str) bool extern;
-fn resolve(path str) str extern;
+func CreateDir(path &Path, allow_already_existing bool) Result<void, FileError> {
+  if (CreateDirExtern(path.str(), allow_already_existing)) {
+    Ok<void, FileError>(void())
+  } else {
+    panic("Error in CreateDir")
+  }
+}
+
+func CreateDirAll(path &Path, allow_already_existing bool) Result<void, FileError> {
+  if (path.segments.len() == 0) {
+    ret Err<void, FileError>(FileNotFoundError(path.clone()));
+  }
+  if (not path.exists()) {
+    // Recurse
+    recurse_result = CreateDirAll(&path.parent(), allow_already_existing);
+    if (recurse_result.is_err()) {
+      ret recurse_result;
+    }
+    recurse_result.expect();
+
+    create_dir_result = path.CreateDir(allow_already_existing);
+    if (create_dir_result.is_err()) {
+      ret create_dir_result;
+    }
+    create_dir_result.expect();
+  }
+  ret Ok<void, FileError>(void());
+}
+
+extern func readFileAsString(filenameVStr str) str;
+extern func writeStringToFile(filenameVStr str, contentsVStr str) void;
+extern func GetEnvPathSeparator() str;
+extern func GetPathSeparator() str;
+extern func is_dir(value str) bool;
+extern func is_file(value str) bool;
+extern func exists(path str) bool;
+extern func iterdir(path &Path, path_str str, destination_list &!List<Path>) bool;
+extern func makeDirectory(path str, allow_already_existing bool) bool;
+extern func resolve(path str) str;
+extern func CreateDirExtern(path str, allow_already_existing bool) bool;

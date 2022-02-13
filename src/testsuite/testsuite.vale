@@ -5,18 +5,18 @@ struct TestSuite {
   num_tests_skipped! int;
 }
 
-fn TestSuite() TestSuite {
+func TestSuite() TestSuite {
   TestSuite("", 0, 0)
 }
 
-fn finish(suite TestSuite) {
+func finish(suite TestSuite) {
   println("Passed all " + suite.num_tests_ran + " tests!");
   if (suite.num_tests_skipped > 0) {
     println("Skipped " + suite.num_tests_skipped + " tests.");
   }
 }
 
-fn test<F>(suite &!TestSuite, name str, lambda F) {
+func test<F>(suite &!TestSuite, name str, lambda F) {
   if (name.has(suite.filter)) {
     set suite.num_tests_ran = suite.num_tests_ran + 1;
     println("Test: " + name);
@@ -26,13 +26,13 @@ fn test<F>(suite &!TestSuite, name str, lambda F) {
   }
 }
 
-fn should_equal<T>(a T, b T) {
+func should_equal<T>(a T, b T) {
   if (not (a == b)) {
     panic("Check failed! Expected:\n{a}\nto equal:\n{b}");
   }
 }
 
-fn should_not_equal<T>(a T, b T) {
+func should_not_equal<T>(a T, b T) {
   if (a == b) {
     panic("Check failed! Expected a difference, but both were: {a}");
   }
@@ -42,11 +42,11 @@ struct SubTestSuite {
   suite &!TestSuite;
   prefix str;
 }
-fn test<F>(subSuite &!SubTestSuite, name str, func F) {
+func test<F>(subSuite &!SubTestSuite, name str, func F) {
   (subSuite.suite)!.test(subSuite.prefix + " / " + name, func);
 }
 
-fn sub<F>(suite &!TestSuite, prefix str, body F) {
+func sub<F>(suite &!TestSuite, prefix str, body F) {
   subSuite = SubTestSuite(&!suite, prefix);
   body!(subSuite);
 }

@@ -3,6 +3,6 @@ struct Call {
 }
 
 interface Error {
-    fn description(virtual self &Error) str;
-    fn trace(virtual self &Error) List<Call>;    
+    func description(virtual self &Error) str;
+    func trace(virtual self &Error) List<Call>;    
 }
